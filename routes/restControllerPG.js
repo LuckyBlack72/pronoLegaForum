@@ -22,52 +22,93 @@ var connectionData = process.env.DATABASE_URL || // URI 'postgres://postgres:roo
 
 var db  =  promisePostGres(connectionData);               
 
-/* GET getFasce. */ /* Fatto */
-router.get('/getFasce', function(req, res, next) {
+/* post getAnagraficaCompetizioni. */ /* Fatto */
+router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
-  var queryText = 'select * from pronolegaforum.sorteggio ' +  
-  'where stagione = ' + req.query.stagione + ' and serie = ' + '\'' + req.query.serie + '\'' +  ' ' + 
-  'order by ranking';
+  var queryText = 'select * from pronolegaforum.anagrafica_competizioni ' +  
+  'where '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
+  'order by id';
 
-  db.any(queryText).then(function (fasce) {
+  db.any(queryText).then(function (listaCompetizioni) {
 
-    var fasceArray = [];
-    var fascia = [];
-    var valoreFascia;
-
-    if(typeof fasce[0] !== "undefined"){ //controllo se ha trovato dati o no
-      valoreFascia = fasce[0].fascia;
-      for (var i=0; i < fasce.length; i++){
-        
-        if(fasce[i].fascia === valoreFascia){
-          fascia.push(fasce[i]);
-        }else{
-          valoreFascia = fasce[i].fascia;
-          fasceArray.push(fascia);
-          fascia = [];
-          fascia.push(fasce[i]);
-        } 
-      
-      }
-    
-      fasceArray.push(fascia);
-    
-    }else{
-    
-      fasceArray = [];
-    
-    }
-
-  //torno un'oggetto json
-
-  res.status(200).json(fasceArray);
+    //torno un'oggetto json
+    res.status(200).json(listaCompetizioni);
   })
   .catch(error => { //gestione errore
-    fasceArray = [];
-    res.status(200).json(fasceArray);
+    res.status(500).json([]);
   });
 
 });
+
+/* post getAnagraficaPartecipanti. */ /* Fatto */
+router.post('/getAnagraficaPartecipanti', function(req, res, next) {
+
+  var nickname = ' ';
+  if(req.body.nickname){
+    nickname = req.body.nickname;
+  }
+
+  var queryText = 'select * from pronolegaforum.anagrafica_partecipanti ';
+  if(nickname !== ' '){
+    query_text = query_text + 'where nickname = ' + '\'' + nickname + '\'';
+  } else {
+    query_text = query_text + 'order by nickname';
+  } 
+
+  db.any(queryText).then(function (listaPartecipanti) {
+
+    //torno un'oggetto json
+    res.status(200).json(listaPartecipanti);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
+
+});
+
+/* post getPronostici. */ /* Fatto */
+router.post('/getPronostici', function(req, res, next) {
+
+  var stagione = 0;
+  if(req.body.stagione){
+    stagione = req.body.stagione;
+  }
+  var idPartecipanti = 0;
+  if(req.body.idPartecipanti){
+    idPartecipanti = req.body.idPartecipanti;
+  }
+
+  if(stagione !== 0){
+
+
+    var queryText = 'select * from pronolegaforum.pronostici pr,' +
+    'json_array_elements(pr.dati_pronostici -> ' +   '\'' + stagione + '\'' + ')' + ' stagione ' +  
+    'where stagione ' +  ' = ' + stagione;
+    if(idPartecipanti !== 0){
+        queryText = queryText + ' and  ' + 'pr.id_partecipanti' + ' = ' + idPartecipanti; 
+    } 
+    queryText = queryText + ' order by pr.id_partecipanti, ' +
+    'pr.dati_pronostici ->> ' + '\'' + 'competizione' + '\'';
+  
+    db.any(queryText).then(function (listaPronostici) {
+  
+      //torno un'oggetto json
+      res.status(200).json(listaPronostici);
+    })
+    .catch(error => { //gestione errore
+      res.status(500).json([]);
+    });
+  
+  }else{
+    res.status(500).json([]);
+  }
+
+});
+
+
+
+//---------------------------------------------
+
 
 /* POST saveSerie. */
 router.post('/saveSerie', function(req, res, next) {
