@@ -22,7 +22,8 @@ var connectionData = process.env.DATABASE_URL || // URI 'postgres://postgres:roo
 
 var db  =  promisePostGres(connectionData);               
 
-/* post getAnagraficaCompetizioni. */ /* Fatto */
+/* post getAnagraficaCompetizioni. */ 
+/* prende le competizioni filtrandole per stagione */
 router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
   var queryText = 'select * from pronolegaforum.anagrafica_competizioni ' +  
@@ -40,7 +41,8 @@ router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
 });
 
-/* post getAnagraficaPartecipanti. */ /* Fatto */
+/* post getAnagraficaPartecipanti. */ 
+/* prende i dati dei partecipanti filtrandoli eventualmente per nickname */
 router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
   var nickname = ' ';
@@ -50,9 +52,9 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
   var queryText = 'select * from pronolegaforum.anagrafica_partecipanti ';
   if(nickname !== ' '){
-    query_text = query_text + 'where nickname = ' + '\'' + nickname + '\'';
+    queryText = queryText + 'where nickname = ' + '\'' + nickname + '\'';
   } else {
-    query_text = query_text + 'order by nickname';
+    queryText = queryText + 'order by nickname';
   } 
 
   db.any(queryText).then(function (listaPartecipanti) {
@@ -66,7 +68,8 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
 });
 
-/* post getPronostici. */ /* Fatto */
+/* post getPronostici. */
+/* prende i record dalla tabella pronostici filtrandoli eventualmente per Stagione,id_parecipanti,id_competizione */
 router.post('/getPronostici', function(req, res, next) {
 
   var stagione = 0;
@@ -78,190 +81,106 @@ router.post('/getPronostici', function(req, res, next) {
     idPartecipanti = req.body.idPartecipanti;
   }
 
-  if(stagione !== 0){
-
-
-    var queryText = 'select * from pronolegaforum.pronostici pr,' +
-    'json_array_elements(pr.dati_pronostici -> ' +   '\'' + stagione + '\'' + ')' + ' stagione ' +  
-    'where stagione ' +  ' = ' + stagione;
-    if(idPartecipanti !== 0){
-        queryText = queryText + ' and  ' + 'pr.id_partecipanti' + ' = ' + idPartecipanti; 
-    } 
-    queryText = queryText + ' order by pr.id_partecipanti, ' +
-    'pr.dati_pronostici ->> ' + '\'' + 'competizione' + '\'';
-  
-    db.any(queryText).then(function (listaPronostici) {
-  
-      //torno un'oggetto json
-      res.status(200).json(listaPronostici);
-    })
-    .catch(error => { //gestione errore
-      res.status(500).json([]);
-    });
-  
-  }else{
-    res.status(500).json([]);
+  var idCompetizione = 0;
+  if(req.body.idCompetione){
+    idCompetizione = req.body.idCompetizione;
   }
 
-});
+  var queryText = ' ';
+  var whereClause  = 0;
 
-
-
-//---------------------------------------------
-
-
-/* POST saveSerie. */
-router.post('/saveSerie', function(req, res, next) {
-
-  var fasceAfterDraft = req.body.fasceAfterDraft;
-
-  //gestione transazionale delle insert
-  db.tx(function (t) {
-
-    var queryText = 'update pronolegaforum.sorteggio set ' +
-    'girone = NULL, ods = 0 where stagione = ' + req.body.stagione + ' and ' + 
-    'serie = ' + '\'' + req.body.serie + '\'';
-    db.none(queryText).then(function () {
-      var updates = [];
-      for (var i = 0 ; i < fasceAfterDraft.length ; i++){
-        for(var j = 0 ; j < fasceAfterDraft[i].length ; j++){
-          queryText = 'update pronolegaforum.sorteggio set girone = ' + '\'' + fasceAfterDraft[i][j].girone + '\'' + 
-                      ' , ods = ' + fasceAfterDraft[i][j].ods +
-                      ' where squadra  = ' + '\'' + fasceAfterDraft[i][j].squadra + '\'' + ' and ' +
-                      '       stagione = ' + fasceAfterDraft[i][j].stagione + ' and ' +
-                      '       serie    = ' + '\'' + fasceAfterDraft[i][j].serie + '\'';
-          updates.push(db.none(queryText));
-        }
-      }       
-      return t.batch(updates);
-    });
-  })
-  .then(function (data) {
-    res.status(200).json('OK');
-  })
-  .catch(function (error) {
-    res.status(500).json(error);
-  });
-  //----------------------------------------------------------
-
-});
-
-/* POST getStagioni */ /* Fatto */
-router.post('/getStagioni', function(req, res, next) {
-  
-  db.any('select distinct(stagione) from pronolegaforum.sorteggio order by stagione').then(function (listaStagione) {
-
-    //torno un'oggetto json
-    res.status(200).json(listaStagione);
-    
-  })
-  .catch(error => { //gestione errore
-    res.status(200).json(listaStagione);
-  });  
-  
-});
-
-/* POST getSquadre */
-router.post('/getSquadre', function(req, res, next) {
-  
-  db.any('select distinct(squadra) from pronolegaforum.sorteggio order by squadra').then(function (listaSquadre) {
-
-    //torno un'oggetto json
-    res.status(200).json(listaSquadre);
-    
-  })
-  .catch(error => { //gestione errore
-    res.status(200).json(listaSquadre);
-  });    
-  
-});
-
-/* POST getSorteggioStagione */ /* Fatto */
-router.post('/getSorteggioStagione', function(req, res, next) {
-
-  var queryText = 'select id,squadra,allenatore,stagione,serie,fascia,ranking,girone,ods ' + 
-  'from pronolegaforum.sorteggio where stagione = ' + req.body.stagione  + '  ' + 
-  'order by serie asc, girone asc, ods asc ';
-  
-  db.any(queryText).then(function (sorteggioStagione) {
-    
-    var serieArray = [];
-    var gironeArray = [];
-    var girone = [];
-    var valoreSerie;
-    var valoreGirone;
-
-    if(typeof sorteggioStagione[0] !== "undefined"){ //controllo se ha trovato dati o no
-      
-      valoreSerie = sorteggioStagione[0].serie;
-      valoreGirone = sorteggioStagione[0].girone;
-
-      for (var i=0; i < sorteggioStagione.length; i++){
-        
-        if(sorteggioStagione[i].serie === valoreSerie){
-          if(sorteggioStagione[i].girone === valoreGirone){
-            girone.push(sorteggioStagione[i]);
-          }else{
-            valoreGirone = sorteggioStagione[i].girone;
-            gironeArray.push(girone);
-            girone = [];
-            girone.push(sorteggioStagione[i]);
-          }
-        } else{
-          valoreSerie = sorteggioStagione[i].serie;
-          valoreGirone = sorteggioStagione[i].girone;
-          gironeArray.push(girone);
-          serieArray.push(gironeArray);
-          gironeArray = [];
-          girone = [];
-          girone.push(sorteggioStagione[i]);
-        } 
+  queryText = 'select * from pronolegaforum.pronostici ';
+  if(stagione !== 0 || idPartecipanti !== 0 || idCompetizione !== 0){
+    queryText = queryText + 'where ';
+    if(stagione !== 0){
+      queryText = queryText + 'stagione = ' + stagione + ' ';
+      whereClause++;
+    } 
+    if(idPartecipanti !== 0){
+      if(whereClause > 0 ){
+        queryText = queryText + 'and ';  
       }
+      queryText = queryText + 'id_partecipanti = ' + idPartecipanti + ' ';
+      whereClause++;
+    } 
+    if(idCompetizione !== 0){
+      if(whereClause > 0 ){
+        queryText = queryText + 'and ';  
+      }
+      queryText = queryText + 'id_competizione = ' + idCompetizione + ' ';
+      whereClause++;
+    } 
+  }
+  queryText = queryText + 'order by stagione, id_partecipanti, id_competizione';
 
-      gironeArray.push(girone);
-      serieArray.push(gironeArray);
-
-    }else{
-
-      serieArray = [];
-
-    }
-
+  db.any(queryText).then(function (listaPronostici) {
     //torno un'oggetto json
-    res.status(200).json(serieArray);
-
+    res.status(200).json(listaPronostici);
   })
   .catch(error => { //gestione errore
-    var serieArray = [];
-    res.status(200).json(serieArray);
-  });  
+    res.status(500).json([]);
+  });
 
 });
 
-/* POST getSorteggioSquadra */
-router.post('/getSorteggioSquadra', function(req, res, next) {
+/* POST savePronostici. */
+/* salva i pronostici di un partecipante sul DB */
+router.post('/savePronostici', function(req, res, next) {
 
-  var queryText = 'select id,squadra,allenatore,stagione,serie,fascia,ranking,girone,ods ' + 
-  'from pronolegaforum.sorteggio where squadra = ' + '\'' + req.body.squadra + '\'' + ' order by stagione asc ';
+  var stagione = 0;
+  if(req.body.stagione){
+    stagione = req.body.stagione;
+  }
+  var idPartecipanti = 0;
+  if(req.body.idPartecipanti){
+    idPartecipanti = req.body.idPartecipanti;
+  }
+
+  var idCompetizione = 0;
+  if(req.body.idCompetizione){
+    idCompetizione = req.body.idCompetizione;
+  } 
+
+  var pronostici = req.body.pronostici;
+
+  var queryText = ' ';
   
-  db.any(queryText).then(function (sorteggiSquadra) {
-    
-    //torno un'oggetto json
-    res.status(200).json(sorteggiSquadra);
+  //costruisco la insert
+  queryText = 'insert into pronolegaforum.pronostici ' +
+              '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
+              'values ( ' + idPartecipanti + ', ' + stagione + ', ' + idCompetizione + ', ';
+  var pronoData = '\'{';
+  for (var i = 0 ; i < pronostici.length ; i++){
+    pronoData = pronoData + '"' + pronostici[i] + '"'; 
+    if(i < (pronostici.length - 1)){
+      pronoData = pronoData + ' , ';
+    }else{
+      pronoData = pronoData + ' ';
+    }
+  }
+  pronoData = pronoData + '}\'';
+  queryText = queryText + pronoData;
+  queryText = queryText + ' )';
 
+  //eseguo la insert
+  db.none(queryText)
+  .then(() => {
+      // success;
+      res.status(200).json('OK');
   })
-  .catch(error => { //gestione errore
-    res.status(200).json(sorteggiSquadra);
-  });  
+  .catch(error => {
+      // error;
+      res.status(500).json(error);
+  });    
 
 });
-
-
 
 /* POST checkPassword */
 router.post('/checkPassword', function(req, res, next) {
 
-  var queryText = 'select count(*) from pronolegaforum.password where password = ' + '\'' + req.body.password + '\'';
+  var queryText = 'select count(*) from pronolegaforum.anagrafica_partecipanti where ' +
+  'nickname = ' + '\'' + req.body.nickname + '\'' + ' and ' +
+  'password_value = ' + '\'' + req.body.password + '\'';
 
   db.one(queryText).then(function (data) {
     
@@ -272,297 +191,9 @@ router.post('/checkPassword', function(req, res, next) {
     }  
   })
   .catch(error => { //gestione errore
-    res.status(500).json('KO');
+    res.status(500).json('KO '+ '[' + error + ']');
   });  
   
 });
-
-//LF 18/07/2018
-/* POST getSorteggioStagioneSerie */ /* Fatto */
-router.post('/getSorteggioStagioneSerie', function(req, res, next) {
-
-  var queryText = 'select id,squadra,allenatore,stagione,serie,fascia,ranking,girone,ods ' + 
-  'from pronolegaforum.sorteggio where stagione = ' + req.body.stagione  + '  and ' + 'serie = ' + '\'' + req.body.serie + '\'' + ' ' +
-  'order by serie asc, girone asc, ods asc ';
-  
-  db.any(queryText).then(function (sorteggioStagioneSerie) {
-    
-    var gironeArray = [];
-    var girone = [];
-    var valoreGirone;
-
-    if(typeof sorteggioStagioneSerie[0] !== "undefined"){ //controllo se ha trovato dati o no
-      
-      valoreGirone = sorteggioStagioneSerie[0].girone;
-
-      for (var i=0; i < sorteggioStagioneSerie.length; i++){
-        
-          if(sorteggioStagioneSerie[i].girone === valoreGirone){
-            girone.push(sorteggioStagioneSerie[i]);
-          }else{
-            valoreGirone = sorteggioStagioneSerie[i].girone;
-            gironeArray.push(girone);
-            girone = [];
-            girone.push(sorteggioStagioneSerie[i]);
-          }
-      }
-
-      gironeArray.push(girone);
-
-    }else{
-
-      gironeArray = [];
-
-    }
-
-    //torno un'oggetto json
-    res.status(200).json(gironeArray);
-
-  })
-  .catch(error => { //gestione errore
-    var gironeArray = [];
-    res.status(200).json(gironeArray);
-  });  
-
-});
-//LF 18/07/2018
-
-//LF 18/07/2018
-router.post('/sendMail', function(req, res, next) {
-
-  //Creo il body del messsagio
-  var mailRecipient = req.body.recipient;
-  var mailSender    = req.body.sender;
-  var mailSubject   = req.body.mailSubject;
-  var mailText      = req.body.mailText;
-  var environment   = req.body.environment;
-  
-  //i dati per il file Excel
-  var serie     = req.body.serie;
-  var stagione  = req.body.stagione;
-  var excelData = req.body.excelData;
-
-  var mailServer;
-
-  if(environment === 'PRD') {
-    mailServer = {
-      host: 'smtps.aruba.it',
-      port: 465,
-      secure: true,
-      auth: {
-          user: mailSender,
-          pass: 'provalf18'
-      }
-    };  
-  } else {
-    mailServer = {
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-          user: mailSender,
-          pass: 'fantacalcio72'
-      }
-    };  
-  }
-
-  let transporter = nodeMailer.createTransport(mailServer);
-
-  let mailOptions = {
-    from: '"Sorteggio Lega Forum" <' + mailSender + ' >', // sender address
-    to: mailRecipient, // list of receivers
-    subject: mailSubject, // Subject line
-    text: mailText, // plain text body
-    html: '<b>' + mailText + '</b>', // html body
-    attachments: []
-  };
-
-  if(fs.existsSync('./export/' + 'ExportSerie' + serie + stagione + '.xlsx') && environment === 'PRD' ){ //il file esiste non lo devo generare
-    
-    mailOptions.attachments.push({path : './export/' + 'ExportSerie' + serie + stagione + '.xlsx'});
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        res.status(500).json('KO');
-      }else{
-        console.log('Message %s sent: %s', info.messageId, info.response);
-        res.status(200).json('OK');
-      }
-    });
-  
-  } else {
-    //Gestione Excel -----------------------------------------
-    var excelRows = [];
-    var workbook = new Excel.Workbook();
-    workbook.creator = 'Applicazione Sorteggio Lega Forum';
-    workbook.views = [
-      {
-        x: 0, y: 0, width: 10000, height: 20000,
-        firstSheet: 0, activeTab: 1, visibility: 'visible'
-      }
-    ];
-
-    //Loop sui dati
-
-    // Serie
-    for (let i = 0 ; i < excelData.length ; i++) {
-      //Gironi della Serie
-      for (let j = 0; j < excelData[i].length; j++) {
-        excelRows.push(
-                        {
-                          squadra:    excelData[i][j].squadra,
-                          allenatore: excelData[i][j].allenatore,
-                          ods:        excelData[i][j].ods
-                        }
-                      );
-      }
-      workbook.addWorksheet('Serie' + ' ' + serie + ' - ' + 'Girone ' +  excelData[i][0].girone);
-      var worksheet = workbook.getWorksheet('Serie' + ' ' + serie + ' - ' + 'Girone ' +  excelData[i][0].girone);
-      worksheet.columns = [
-        { header: 'Squadra', key: 'squadra', width: 30 },
-        { header: 'Allenatore', key: 'allenatore', width: 30 },
-        { header: 'ODS', key: 'ods', width: 5 }
-    ];
-      worksheet.addRows(excelRows);
-      
-      for(let x = 1; x < 4; x++){
-        worksheet.getCell(1, x).alignment = { 
-            horizontal : 'center'
-          };
-        worksheet.getCell(1, x).font = { 
-            bold : true
-          };
-        worksheet.getCell(1 , x).fill = {
-            type : 'pattern', 
-            pattern : 'solid', 
-            fgColor : {argb : 'FFFFC000'}
-          };      
-          worksheet.getCell(1 , x).border = {
-            top: {style:'thin'},
-            left: {style:'thin'},
-            bottom: {style:'thin'},
-            right: {style:'thin'}
-          };
-      }
-
-      excelRows = []; // ripulisco la array
-    }
-
-    workbook.xlsx.writeFile('./export/' + 'ExportSerie' + serie + stagione + '.xlsx')
-      .then(function() {
-        mailOptions.attachments.push({path : './export/' + 'ExportSerie' + serie + stagione + '.xlsx'});
-
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.log(error);
-            res.status(500).json('KO');
-          }else{
-            console.log('Message %s sent: %s', info.messageId, info.response);
-            res.status(200).json('OK');
-          }
-        });
-      })
-      .catch(error => { //gestione errore
-        console.log(error);
-        res.status(500).json('KO');
-      });
-
-    //--------------------------------------------------------
-  }
-
-});
-
-/* POST checkSorteggio */
-router.post('/checkSorteggio', function(req, res, next) {
-
-  var queryText = 'select count(*) from pronolegaforum.sorteggio where stagione = ' + req.body.stagione + ' ' +
-                  'and girone is not null';
-
-  db.one(queryText).then(function (data) {
-    
-    if(parseInt(data.count) < 96){
-      res.status(200).json(true);
-    }else{
-      res.status(200).json(false);
-    }  
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json(false);
-  });  
-  
-});
-
-/* POST importRanking */
-router.post('/importRankingSorteggio', function(req, res, next) {
-
-  var rankingSorteggio = req.body.rankingSorteggio;
-  var importTipo = req.body.importTipo;
-  var stagione = req.body.stagione;
-
-  //gestione transazionale delle insert
-  db.tx(function (t) {
-
-    var queryText = 'delete from pronolegaforum.sorteggio ' +
-    'where stagione = ' + stagione;
-    
-    db.none(queryText).then(function () {
-      var inserts = [];
-      for (var i = 0 ; i < rankingSorteggio.length ; i++){
-          queryText = 'insert into pronolegaforum.sorteggio ( allenatore, fascia, girone, ods, ranking, serie, squadra, stagione ) ' +
-          'values ' +
-          '( ' + 
-          '\'' + rankingSorteggio[i].allenatore + '\'' + ', ' + //allenatore
-          rankingSorteggio[i].fascia + ', '; //fascia
-          
-          if (importTipo === 'R'){
-            queryText = queryText + 'NULL' + ', ' + //girone
-            0 + ', '; //ods
-          } else {
-            queryText = queryText + '\'' + rankingSorteggio[i].girone + '\'' + ', ' + //girone
-            rankingSorteggio[i].ods + ', '; //ods
-          }
-
-          queryText = queryText +
-          rankingSorteggio[i].ranking + ', ' + //ranking
-          '\'' + rankingSorteggio[i].serie + '\'' + ', ' + //serie
-          '\'' + rankingSorteggio[i].squadra + '\'' + ', ' + //squadra
-          rankingSorteggio[i].stagione + ' ' + //stagione
-          ')';
-           console.log(queryText);
-          inserts.push(db.none(queryText));
-      }       
-      return t.batch(inserts);
-    });
-  })
-  .then(function (data) {
-    res.status(200).json(true);
-  })
-  .catch(function (error) {
-    res.status(500).json(false);
-  });
-  //----------------------------------------------------------
-
-});
-
-/* POST checkRanking */
-router.post('/checkRanking', function(req, res, next) {
-
-  var queryText = 'select count(*) from pronolegaforum.sorteggio where stagione = ' + req.body.stagione;
-
-  db.one(queryText).then(function (data) {
-    
-    if(parseInt(data.count) < 96){ //ranking non presente o non completo
-      res.status(200).json(false);
-    }else{
-      res.status(200).json(true);
-    }  
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json(false);
-  });  
-  
-});
-
 
 module.exports = router;

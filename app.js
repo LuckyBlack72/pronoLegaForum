@@ -7,10 +7,12 @@ var bodyParser = require('body-parser');
 var compression = require('compression');
 var helmet = require('helmet'); //security
 
-//var restController = require('./routes/restController'); //MySql
 var restControllerPG = require('./routes/restControllerPG'); //PostGres SQL
 
 var app = express();
+
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 app.use(cors()); //CORS handling
 
@@ -36,7 +38,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.options('*', cors()); // include before other routes
 
-//app.use('/', restController); //solo per le richieste ajax e MySQL
 app.use('/', restControllerPG); //solo per le richieste ajax e PortGress Sql
 
 // catch 404 and forward to error handler
