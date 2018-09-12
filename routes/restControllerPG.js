@@ -26,9 +26,11 @@ var db  =  promisePostGres(connectionData);
 /* prende le competizioni filtrandole per stagione */
 router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
-  var queryText = 'select * from pronolegaforum.anagrafica_competizioni ' +  
-  'where '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
-  'order by id';
+  var queryText = 'SELECT ' +
+  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista ' +
+  'FROM pronolegaforum.anagrafica_competizioni ' +  
+  'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
+  'ORDER BY id';
 
   db.any(queryText).then(function (listaCompetizioni) {
 
@@ -50,11 +52,13 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
     nickname = req.body.nickname;
   }
 
-  var queryText = 'select * from pronolegaforum.anagrafica_partecipanti ';
+  var queryText = 'SELECT ' +
+  'id, nickname, email_address, password_value ' +
+  'FROM pronolegaforum.anagrafica_partecipanti ';
   if(nickname !== ' '){
-    queryText = queryText + 'where nickname = ' + '\'' + nickname + '\'';
+    queryText = queryText + 'WHERE nickname = ' + '\'' + nickname + '\'';
   } else {
-    queryText = queryText + 'order by nickname';
+    queryText = queryText + 'ORDER BY nickname';
   } 
 
   db.any(queryText).then(function (listaPartecipanti) {
@@ -67,6 +71,53 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
   });
 
 });
+
+/* post getValoriPronostici. */
+/* prende i record dalla tabella vallri_pronostici filtrandoli eventualmente per Stagione,id_competizione */
+router.post('/getValoriPronostici', function(req, res, next) {
+
+  var stagione = 0;
+  if(req.body.stagione){
+    stagione = req.body.stagione;
+  }
+
+  var idCompetizione = 0;
+  if(req.body.idCompetione){
+    idCompetizione = req.body.idCompetizione;
+  }
+
+  var queryText = ' ';
+  var whereClause  = 0;
+
+  queryText = 'SELECT ' + 
+  'id, stagione, id_competizione, valori_pronostici ' +
+  'FROM pronolegaforum.valori_pronostici ';
+  if(stagione !== 0 || idCompetizione !== 0){
+    queryText = queryText + 'WHERE ';
+    if(stagione !== 0){
+      queryText = queryText + 'stagione = ' + stagione + ' ';
+      whereClause++;
+    } 
+    if(idCompetizione !== 0){
+      if(whereClause > 0 ){
+        queryText = queryText + 'AND ';  
+      }
+      queryText = queryText + 'id_competizione = ' + idCompetizione + ' ';
+      whereClause++;
+    } 
+  }
+  queryText = queryText + 'ORDER BY stagione, id_competizione';
+
+  db.any(queryText).then(function (listaValoriPronostici) {
+    //torno un'oggetto json
+    res.status(200).json(listaValoriPronostici);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
+
+});
+
 
 /* post getPronostici. */
 /* prende i record dalla tabella pronostici filtrandoli eventualmente per Stagione,id_parecipanti,id_competizione */
@@ -89,29 +140,31 @@ router.post('/getPronostici', function(req, res, next) {
   var queryText = ' ';
   var whereClause  = 0;
 
-  queryText = 'select * from pronolegaforum.pronostici ';
+  queryText = 'select ' +
+  'id, id_partecipanti, stagione, id_competizione, pronostici ' +
+  'FROM pronolegaforum.pronostici ';
   if(stagione !== 0 || idPartecipanti !== 0 || idCompetizione !== 0){
-    queryText = queryText + 'where ';
+    queryText = queryText + 'WHERE ';
     if(stagione !== 0){
       queryText = queryText + 'stagione = ' + stagione + ' ';
       whereClause++;
     } 
     if(idPartecipanti !== 0){
       if(whereClause > 0 ){
-        queryText = queryText + 'and ';  
+        queryText = queryText + 'AND ';  
       }
       queryText = queryText + 'id_partecipanti = ' + idPartecipanti + ' ';
       whereClause++;
     } 
     if(idCompetizione !== 0){
       if(whereClause > 0 ){
-        queryText = queryText + 'and ';  
+        queryText = queryText + 'AND ';  
       }
       queryText = queryText + 'id_competizione = ' + idCompetizione + ' ';
       whereClause++;
     } 
   }
-  queryText = queryText + 'order by stagione, id_partecipanti, id_competizione';
+  queryText = queryText + 'ORDER BY stagione, id_partecipanti, id_competizione';
 
   db.any(queryText).then(function (listaPronostici) {
     //torno un'oggetto json
@@ -146,9 +199,9 @@ router.post('/savePronostici', function(req, res, next) {
   var queryText = ' ';
   
   //costruisco la insert
-  queryText = 'insert into pronolegaforum.pronostici ' +
+  queryText = 'INSERT INTO pronolegaforum.pronostici ' +
               '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
-              'values ( ' + idPartecipanti + ', ' + stagione + ', ' + idCompetizione + ', ';
+              'VALUES ( ' + idPartecipanti + ', ' + stagione + ', ' + idCompetizione + ', ';
   var pronoData = '\'{';
   for (var i = 0 ; i < pronostici.length ; i++){
     pronoData = pronoData + '"' + pronostici[i] + '"'; 
@@ -178,8 +231,8 @@ router.post('/savePronostici', function(req, res, next) {
 /* POST checkPassword */
 router.post('/checkPassword', function(req, res, next) {
 
-  var queryText = 'select count(*) from pronolegaforum.anagrafica_partecipanti where ' +
-  'nickname = ' + '\'' + req.body.nickname + '\'' + ' and ' +
+  var queryText = 'SELECT COUNT(*) from pronolegaforum.anagrafica_partecipanti WHERE ' +
+  'nickname = ' + '\'' + req.body.nickname + '\'' + ' AND ' +
   'password_value = ' + '\'' + req.body.password + '\'';
 
   db.one(queryText).then(function (data) {
