@@ -137,13 +137,18 @@ router.post('/getPronostici', function(req, res, next) {
     idCompetizione = req.body.idCompetizione;
   }
 
+  var nickname = 'X';
+  if(req.body.nickname){
+    nickname = req.body.nickname;
+  }
+
   var queryText = ' ';
   var whereClause  = 0;
 
   queryText = 'select ' +
   'id, id_partecipanti, stagione, id_competizione, pronostici ' +
   'FROM pronolegaforum.pronostici ';
-  if(stagione !== 0 || idPartecipanti !== 0 || idCompetizione !== 0){
+  if(stagione !== 0 || idPartecipanti !== 0 || idCompetizione !== 0 || nickname !== 'X'){
     queryText = queryText + 'WHERE ';
     if(stagione !== 0){
       queryText = queryText + 'stagione = ' + stagione + ' ';
@@ -154,6 +159,14 @@ router.post('/getPronostici', function(req, res, next) {
         queryText = queryText + 'AND ';  
       }
       queryText = queryText + 'id_partecipanti = ' + idPartecipanti + ' ';
+      whereClause++;
+    } 
+    if(nickname !== 'X'){
+      if(whereClause > 0 ){
+        queryText = queryText + 'AND ';  
+      }
+      queryText = queryText + 'id_partecipanti in ' +
+      '(select id from pronolegaforum.anagrafica_partecipanti where nickname = ' + '\'' + nickname + '\'' + ' ) ';
       whereClause++;
     } 
     if(idCompetizione !== 0){
@@ -178,6 +191,7 @@ router.post('/getPronostici', function(req, res, next) {
 
 /* POST savePronostici. */
 /* salva i pronostici di un partecipante sul DB */
+/* old version 
 router.post('/savePronostici', function(req, res, next) {
 
   var stagione = 0;
@@ -227,18 +241,18 @@ router.post('/savePronostici', function(req, res, next) {
   });    
 
 });
-
+*/
 /* POST checkPassword */
 router.post('/checkPassword', function(req, res, next) {
 
-  var queryText = 'SELECT COUNT(*) from pronolegaforum.anagrafica_partecipanti WHERE ' +
+  var queryText = 'SELECT id, COUNT(*) from pronolegaforum.anagrafica_partecipanti WHERE ' +
   'nickname = ' + '\'' + req.body.nickname + '\'' + ' AND ' +
   'password_value = ' + '\'' + req.body.password + '\'';
 
   db.one(queryText).then(function (data) {
     
     if(parseInt(data.count) > 0){
-      res.status(200).json('OK');
+      res.status(200).json(data.id);
     }else{
       res.status(500).json('KO');
     }  
@@ -247,6 +261,55 @@ router.post('/checkPassword', function(req, res, next) {
     res.status(500).json('KO '+ '[' + error + ']');
   });  
   
+});
+
+
+router.post('/savePronostici', function(req, res, next) {
+
+  var pronoToSave = req.body.pronostici;
+
+  //gestione transazionale delle insert
+  db.tx(function (t) {
+
+    var queryText = 'DELETE * FROM pronolegaforum.pronostici ' +
+    'WHERE ' + 'id_partecipanti = ' + pronoToSave[0].id_partecipanti + ' AND ' + 
+    'stagione = ' + pronoToSave[0].stagione;
+
+    db.none(queryText).then(function () {
+      var updates = [];
+      for (var x = 0 ; x < pronoToSave.length ; x++){
+        //costruisco la insert
+        queryText = '';
+        queryText = 'INSERT INTO pronolegaforum.pronostici ' +
+                    '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
+                    'VALUES ( ' + pronoToSave[x].id_partecipanti + ', ' + 
+                    pronoToSave[x].stagione + ', ' + 
+                    pronoToSave[x].id_competizione + ', ';
+        var pronoData = '\'{';
+        for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
+          pronoData = pronoData + '"' + pronoToSave[x].pronostici[i] + '"'; 
+          if(i < (pronostici.length - 1)){
+            pronoData = pronoData + ' , ';
+          }else{
+            pronoData = pronoData + ' ';
+          }
+        }
+        pronoData = pronoData + '}\'';
+        queryText = queryText + pronoData;
+        queryText = queryText + ' )';
+        updates.push(db.none(queryText));
+      }       
+      return t.batch(updates);
+    });
+  })
+  .then(function (data) {
+    res.status(200).json('OK');
+  })
+  .catch(function (error) {
+    res.status(500).json('KO '+ '[' + error + ']');
+  });
+  //----------------------------------------------------------
+
 });
 
 module.exports = router;
