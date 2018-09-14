@@ -245,11 +245,16 @@ router.post('/savePronostici', function(req, res, next) {
 /* POST checkPassword */
 router.post('/checkPassword', function(req, res, next) {
 
-  var queryText = 'SELECT id, COUNT(*) from pronolegaforum.anagrafica_partecipanti WHERE ' +
+  var queryText = 'SELECT id, COUNT(*) FROM pronolegaforum.anagrafica_partecipanti WHERE ' +
   'nickname = ' + '\'' + req.body.nickname + '\'' + ' AND ' +
-  'password_value = ' + '\'' + req.body.password + '\'';
+  'password_value = ' + '\'' + req.body.password + '\'' + ' ' +
+  'GROUP BY id';
+
+  console.log(queryText);
 
   db.one(queryText).then(function (data) {
+
+    console.log(data);
     
     if(parseInt(data.count) > 0){
       res.status(200).json(data.id);
@@ -271,7 +276,7 @@ router.post('/savePronostici', function(req, res, next) {
   //gestione transazionale delle insert
   db.tx(function (t) {
 
-    var queryText = 'DELETE * FROM pronolegaforum.pronostici ' +
+    var queryText = 'DELETE FROM pronolegaforum.pronostici ' +
     'WHERE ' + 'id_partecipanti = ' + pronoToSave[0].id_partecipanti + ' AND ' + 
     'stagione = ' + pronoToSave[0].stagione;
 
@@ -288,7 +293,7 @@ router.post('/savePronostici', function(req, res, next) {
         var pronoData = '\'{';
         for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
           pronoData = pronoData + '"' + pronoToSave[x].pronostici[i] + '"'; 
-          if(i < (pronostici.length - 1)){
+          if(i < (pronoToSave[x].pronostici.length - 1)){
             pronoData = pronoData + ' , ';
           }else{
             pronoData = pronoData + ' ';
