@@ -72,6 +72,34 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
 });
 
+router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
+
+  var nickname = req.body.nickname;
+  var email_address = req.body.email_address;
+  var password_value = req.body.password_value;
+
+  var queryText = ' ';
+  
+  //costruisco la insert
+  queryText = 'INSERT INTO pronolegaforum.anagrafica_partecipanti ' +
+              '( nickname, email_address, password_value ) ' +
+              'VALUES ( ' + '"' + nickname + '"' + ', ' + '"' + email_address + '"' + ', ' + '"' + password_value + '"' + ' )';
+  queryText = queryText + ' )';
+
+  //eseguo la insert
+  db.none(queryText)
+  .then(() => {
+      // success;
+      res.status(200).json('OK');
+  })
+  .catch(error => {
+      // error;
+      res.status(500).json(error);
+  });    
+
+});
+
+
 /* post getValoriPronostici. */
 /* prende i record dalla tabella vallri_pronostici filtrandoli eventualmente per Stagione,id_competizione */
 router.post('/getValoriPronostici', function(req, res, next) {
