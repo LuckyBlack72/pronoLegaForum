@@ -27,7 +27,7 @@ var db  =  promisePostGres(connectionData);
 router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
   var queryText = 'SELECT ' +
-  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici ' +
+  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo ' +
   'FROM pronolegaforum.anagrafica_competizioni ' +  
   'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
   'ORDER BY id';
