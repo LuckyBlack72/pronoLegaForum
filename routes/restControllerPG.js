@@ -74,17 +74,19 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
 router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
 
-  var nickname = req.body.nickname;
-  var email_address = req.body.email_address;
-  var password_value = req.body.password_value;
+  var nickname = req.body.anagraficaPartecipanti.nickname;
+  var email_address = req.body.anagraficaPartecipanti.email_address;
+  var password_value = req.body.anagraficaPartecipanti.password_value;
 
   var queryText = ' ';
   
   //costruisco la insert
   queryText = 'INSERT INTO pronolegaforum.anagrafica_partecipanti ' +
               '( nickname, email_address, password_value ) ' +
-              'VALUES ( ' + '"' + nickname + '"' + ', ' + '"' + email_address + '"' + ', ' + '"' + password_value + '"' + ' )';
-  queryText = queryText + ' )';
+              'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + '\'' + password_value + '\'' + ' )';
+
+              console.log(queryText);  
+
 
   //eseguo la insert
   db.none(queryText)
