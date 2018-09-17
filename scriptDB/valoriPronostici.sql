@@ -75,8 +75,8 @@ VALUES (2018,
 
 INSERT INTO pronolegaforum.valori_pronostici(stagione, id_competizione, valori_pronostici)
 VALUES (2018, 
-        2,
-'{'"AEK Athens (GRE)",
+        4,
+'{"AEK Athens (GRE)",
 "Ajax (NED)",
 "Atlético Madrid (ESP)",
 "Barcellona (ESP)",
