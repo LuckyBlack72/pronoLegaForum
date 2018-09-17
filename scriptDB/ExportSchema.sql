@@ -58,7 +58,8 @@ CREATE TABLE pronolegaforum.anagrafica_competizioni (
     anni_competizione integer[],
     punti_esatti integer,
     punti_lista integer,
-    numero_pronostici integer
+    numero_pronostici integer,
+    logo character varying(255)
 );
 
 
