@@ -85,9 +85,6 @@ router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
               '( nickname, email_address, password_value ) ' +
               'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + '\'' + password_value + '\'' + ' )';
 
-              console.log(queryText);  
-
-
   //eseguo la insert
   db.none(queryText)
   .then(() => {
@@ -280,11 +277,7 @@ router.post('/checkPassword', function(req, res, next) {
   'password_value = ' + '\'' + req.body.password + '\'' + ' ' +
   'GROUP BY id';
 
-  console.log(queryText);
-
   db.one(queryText).then(function (data) {
-
-    console.log(data);
     
     if(parseInt(data.count) > 0){
       res.status(200).json(data.id);
@@ -344,6 +337,26 @@ router.post('/savePronostici', function(req, res, next) {
     res.status(500).json('KO '+ '[' + error + ']');
   });
   //----------------------------------------------------------
+
+});
+
+router.post('/getDatePronostici', function(req, res, next) {
+
+  var queryText = 'SELECT ' +
+  'stagione, ' +
+  'TO_CHAR(data_apertura, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_apertura, ' +
+  'TO_CHAR(data_chiusura, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_chiusura ' +
+  'FROM pronolegaforum.date_pronostici ' +  
+  'WHERE '  + 'stagione = ' + req.body.stagione; 
+
+  db.any(queryText).then(function (datePronostici) {
+
+    //torno un'oggetto json
+    res.status(200).json(datePronostici);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
 
 });
 
