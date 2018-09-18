@@ -86,28 +86,41 @@ router.post('/getPronostici', function(req, res, next) {
   var queryText = ' ';
   var whereClause  = 0;
 
-  queryText = 'select ' +
-  'id, id_partecipanti, stagione, id_competizione, pronostici ' +
-  'FROM pronolegaforum.pronostici ';
+  queryText = 'SELECT ' +
+  'pr.id id, ' +
+  'pr.id_partecipanti id_partecipanti, ' +
+  'prc.nickname nickname, ' +
+  'pr.stagione stagione, ' +
+  'pr.id_competizione id_competizione, ' +
+  'cmp.competizione competizione, ' +
+  'pr.pronostici pronostici ' +
+  'FROM ' +
+  'pronolegaforum.pronostici pr ' +
+  'INNER JOIN pronolegaforum.anagrafica_competizioni cmp ON pr.id_competizione = cmp.id ' +
+  'INNER JOIN pronolegaforum.anagrafica_partecipanti prc ON pr.id_partecipanti = prc.id ';
+  
   if(stagione !== 0 || idPartecipanti !== 0 || idCompetizione !== 0 || nickname !== 'X'){
     queryText = queryText + 'WHERE ';
     if(stagione !== 0){
-      queryText = queryText + 'stagione = ' + stagione + ' ';
+      queryText = queryText + 'pr.stagione = ' + stagione + ' ';
       whereClause++;
     } 
     if(idPartecipanti !== 0){
       if(whereClause > 0 ){
         queryText = queryText + 'AND ';  
       }
-      queryText = queryText + 'id_partecipanti = ' + idPartecipanti + ' ';
+      queryText = queryText + 'pr.id_partecipanti = ' + idPartecipanti + ' ';
       whereClause++;
     } 
     if(nickname !== 'X'){
       if(whereClause > 0 ){
         queryText = queryText + 'AND ';  
       }
+      /*
       queryText = queryText + 'id_partecipanti in ' +
       '(select id from pronolegaforum.anagrafica_partecipanti where nickname = ' + '\'' + nickname + '\'' + ' ) ';
+      */
+     queryText = queryText + 'prc.nickname = ' + '\'' + nickname + '\'' + ' ) ';
       whereClause++;
     } 
     if(idCompetizione !== 0){
@@ -118,7 +131,9 @@ router.post('/getPronostici', function(req, res, next) {
       whereClause++;
     } 
   }
-  queryText = queryText + 'ORDER BY stagione, id_partecipanti, id_competizione';
+  queryText = queryText + 'ORDER BY stagione, nickname, competizione';
+
+  console.log(queryText);
 
   db.any(queryText).then(function (listaPronostici) {
     //torno un'oggetto json
@@ -236,7 +251,8 @@ router.post('/getDatePronostici', function(req, res, next) {
   var queryText = 'SELECT ' +
   'stagione, ' +
   'TO_CHAR(data_apertura, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_apertura, ' +
-  'TO_CHAR(data_chiusura, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_chiusura ' +
+  'TO_CHAR(data_chiusura, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_chiusura, ' +
+  'TO_CHAR(data_calcolo_classifica, ' + '\'' + 'YYYY-MM-DD HH24:MI:SS' +  '\'' + ') data_calcolo_classifica ' +
   'FROM pronolegaforum.date_pronostici ' +  
   'WHERE '  + 'stagione = ' + req.body.stagione; 
 
@@ -250,5 +266,35 @@ router.post('/getDatePronostici', function(req, res, next) {
   });
 
 });
+
+router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
+
+  var stagione = req.body.stagione;
+  var queryText = ' ';
+  
+  queryText = 'SELECT ' + 
+  'vpr.id id, ' +
+  'vpr.stagione stagione, ' + 
+  'vpr.id_competizione id_competizione, ' +
+  'vpr.valori_pronostici_classifica valori_pronostici_classifica, ' +
+  'cmp.punti_esatti punti esatti, ' +
+  'cmp.punti_lista punti_lista ' +
+  'FROM ' +
+  'pronolegaforum.valori_pronostici vpr INNER JOIN pronolegaforum.anagrafica_competizione cmp ' +
+  'ON vpr.id_competizione = cmp.id ' +
+  'WHERE ' +
+  'stagione = ' + stagione + ' ' +
+  'ORDER BY id_competizione';
+
+  db.any(queryText).then(function (listaValoriPronosticiClassifica) {
+    //torno un'oggetto json
+    res.status(200).json(listaValoriPronosticiClassifica);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
+
+});
+
 
 module.exports = router;

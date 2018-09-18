@@ -33,4 +33,23 @@ router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
 });
 
+
+router.post('/getStagioni', function(req, res, next) {
+
+  var queryText = 'SELECT ' +
+  'DISTINCT stagione ' +
+  'FROM pronolegaforum.pronostici ' +  
+  'ORDER BY stagione';
+
+  db.any(queryText).then(function (stagioni) {
+
+    //torno un'oggetto json
+    res.status(200).json(stagioni);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
+
+});
+
 module.exports = router;
