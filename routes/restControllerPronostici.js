@@ -1,90 +1,16 @@
 var express = require('express');
 var router = express.Router();
-//var fs = require('fs');
 var dbManager = require('../dbModule/dbManager');
-
-//per le email con attachments
-//var nodeMailer = require('nodemailer');
-//var Excel = require('exceljs'); // LF 16/07/2018 per creare export Excel
-//per le email con attachments
-
 var db = dbManager.getDb();
+//var fs = require('fs');
 
-/* post getAnagraficaCompetizioni. */ 
-/* prende le competizioni filtrandole per stagione */
-router.post('/getAnagraficaCompetizioni', function(req, res, next) {
+//indirizza le richieste a seconda di come cominciano
+// le richieste qui sono tutte sotto richieste di /pronostici
 
-  var queryText = 'SELECT ' +
-  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo ' +
-  'FROM pronolegaforum.anagrafica_competizioni ' +  
-  'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
-  'ORDER BY id';
-
-  db.any(queryText).then(function (listaCompetizioni) {
-
-    //torno un'oggetto json
-    res.status(200).json(listaCompetizioni);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
-
-});
-
-/* post getAnagraficaPartecipanti. */ 
-/* prende i dati dei partecipanti filtrandoli eventualmente per nickname */
-router.post('/getAnagraficaPartecipanti', function(req, res, next) {
-
-  var nickname = ' ';
-  if(req.body.nickname){
-    nickname = req.body.nickname;
-  }
-
-  var queryText = 'SELECT ' +
-  'id, nickname, email_address, password_value ' +
-  'FROM pronolegaforum.anagrafica_partecipanti ';
-  if(nickname !== ' '){
-    queryText = queryText + 'WHERE nickname = ' + '\'' + nickname + '\'';
-  } else {
-    queryText = queryText + 'ORDER BY nickname';
-  } 
-
-  db.any(queryText).then(function (listaPartecipanti) {
-
-    //torno un'oggetto json
-    res.status(200).json(listaPartecipanti);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
-
-});
-
-router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
-
-  var nickname = req.body.anagraficaPartecipanti.nickname;
-  var email_address = req.body.anagraficaPartecipanti.email_address;
-  var password_value = req.body.anagraficaPartecipanti.password_value;
-
-  var queryText = ' ';
-  
-  //costruisco la insert
-  queryText = 'INSERT INTO pronolegaforum.anagrafica_partecipanti ' +
-              '( nickname, email_address, password_value ) ' +
-              'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + '\'' + password_value + '\'' + ' )';
-
-  //eseguo la insert
-  db.none(queryText)
-  .then(() => {
-      // success;
-      res.status(200).json('OK');
-  })
-  .catch(error => {
-      // error;
-      res.status(500).json(error);
-  });    
-
-});
+// per le email con attachments
+// var nodeMailer = require('nodemailer');
+// var Excel = require('exceljs'); // LF 16/07/2018 per creare export Excel
+// per le email con attachments
 
 
 /* post getValoriPronostici. */
@@ -257,29 +183,6 @@ router.post('/savePronostici', function(req, res, next) {
 
 });
 */
-/* POST checkPassword */
-router.post('/checkPassword', function(req, res, next) {
-
-  var queryText = 'SELECT id, COUNT(*) FROM pronolegaforum.anagrafica_partecipanti WHERE ' +
-  'nickname = ' + '\'' + req.body.nickname + '\'' + ' AND ' +
-  'password_value = ' + '\'' + req.body.password + '\'' + ' ' +
-  'GROUP BY id';
-
-  db.one(queryText).then(function (data) {
-    
-    if(parseInt(data.count) > 0){
-      res.status(200).json(data.id);
-    }else{
-      res.status(500).json('KO');
-    }  
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json('KO '+ '[' + error + ']');
-  });  
-  
-});
-
-
 router.post('/savePronostici', function(req, res, next) {
 
   var pronoToSave = req.body.pronostici;

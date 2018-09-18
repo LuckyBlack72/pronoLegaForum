@@ -6,8 +6,14 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var compression = require('compression');
 var helmet = require('helmet'); //security
+var dbManager = require('./dbModule/dbManager');
 
-var restControllerPG = require('./routes/restControllerPG'); //PostGres SQL
+dbManager.initDb(); //inizializzo il db
+
+//file unico var restControllerPG = require('./routes/restControllerPG'); //PostGres SQL
+var restControllerClassifica = require('./routes/restControllerClassifica'); //PostGres SQL
+var restControllerPartecipanti = require('./routes/restControllerPartecipanti'); //PostGres SQL
+var restControllerPronostici = require('./routes/restControllerPronostici'); //PostGres SQL
 
 var app = express();
 
@@ -38,7 +44,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.options('*', cors()); // include before other routes
 
-app.use('/', restControllerPG); //solo per le richieste ajax e PortGress Sql
+//file unico app.use('/', restControllerPG); //solo per le richieste ajax e PortGress Sql
+//indirizza le richieste a seconda di come cominciano
+app.use('/classifica', restControllerClassifica); //solo per le richieste ajax e PortGress Sql
+app.use('/partecipanti', restControllerPartecipanti); //solo per le richieste ajax e PortGress Sql
+app.use('/pronostici', restControllerPronostici); //solo per le richieste ajax e PortGress Sql
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
