@@ -131,7 +131,7 @@ router.post('/getPronostici', function(req, res, next) {
       whereClause++;
     } 
   }
-  queryText = queryText + 'ORDER BY stagione, nickname, competizione';
+  queryText = queryText + 'ORDER BY stagione, nickname, id_competizione';
 
   db.any(queryText).then(function (listaPronostici) {
     //torno un'oggetto json
@@ -277,14 +277,16 @@ router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
   'vpr.stagione stagione, ' + 
   'vpr.id_competizione id_competizione, ' +
   'vpr.valori_pronostici_classifica valori_pronostici_classifica, ' +
-  'cmp.punti_esatti punti esatti, ' +
+  'cmp.punti_esatti punti_esatti, ' +
   'cmp.punti_lista punti_lista ' +
   'FROM ' +
-  'pronolegaforum.valori_pronostici vpr INNER JOIN pronolegaforum.anagrafica_competizione cmp ' +
+  'pronolegaforum.valori_pronostici vpr INNER JOIN pronolegaforum.anagrafica_competizioni cmp ' +
   'ON vpr.id_competizione = cmp.id ' +
   'WHERE ' +
-  'stagione = ' + stagione + ' ' +
-  'ORDER BY id_competizione';
+  'vpr.stagione = ' + stagione + ' ' +
+  'ORDER BY vpr.id_competizione';
+
+  console.log(queryText);
 
   db.any(queryText).then(function (listaValoriPronosticiClassifica) {
     //torno un'oggetto json
