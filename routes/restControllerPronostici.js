@@ -231,9 +231,6 @@ router.post('/savePronostici', function(req, res, next) {
         queryText = queryText + pronoData;
         queryText = queryText + ' )';
 
-        console.log('Insert Statement : ' + queryText);
-
-
         updates.push(db.none(queryText));
       }       
       return t.batch(updates);
