@@ -133,8 +133,6 @@ router.post('/getPronostici', function(req, res, next) {
   }
   queryText = queryText + 'ORDER BY stagione, nickname, competizione';
 
-  console.log(queryText);
-
   db.any(queryText).then(function (listaPronostici) {
     //torno un'oggetto json
     res.status(200).json(listaPronostici);
@@ -221,7 +219,8 @@ router.post('/savePronostici', function(req, res, next) {
                     pronoToSave[x].id_competizione + ', ';
         var pronoData = '\'{';
         for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
-          pronoData = pronoData + '"' + pronoToSave[x].pronostici[i] + '"'; 
+          var valueProno = pronoToSave[x].pronostici[i].replace("'","''");
+          pronoData = pronoData + '"' + valueProno + '"'; 
           if(i < (pronoToSave[x].pronostici.length - 1)){
             pronoData = pronoData + ' , ';
           }else{
@@ -231,6 +230,10 @@ router.post('/savePronostici', function(req, res, next) {
         pronoData = pronoData + '}\'';
         queryText = queryText + pronoData;
         queryText = queryText + ' )';
+
+        console.log('Insert Statement : ' + queryText);
+
+
         updates.push(db.none(queryText));
       }       
       return t.batch(updates);
