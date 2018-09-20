@@ -6,7 +6,7 @@ var db = dbManager.getDb();
 function getAnagraficaCompetizioni (req) {
 
   var queryText = 'SELECT ' +
-  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo ' +
+  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo, tipo_competizione ' +
   'FROM pronolegaforum.anagrafica_competizioni ' +  
   'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
   'ORDER BY id';

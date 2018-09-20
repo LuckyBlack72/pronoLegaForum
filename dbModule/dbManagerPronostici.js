@@ -200,7 +200,8 @@ function getValoriPronosticiCalcoloClassifica(req) {
   'vpr.id_competizione id_competizione, ' +
   'vpr.valori_pronostici_classifica valori_pronostici_classifica, ' +
   'cmp.punti_esatti punti_esatti, ' +
-  'cmp.punti_lista punti_lista ' +
+  'cmp.punti_lista punti_lista, ' +
+  'cmp.tipo_competizione tipo_competizione ' +
   'FROM ' +
   'pronolegaforum.valori_pronostici vpr INNER JOIN pronolegaforum.anagrafica_competizioni cmp ' +
   'ON vpr.id_competizione = cmp.id ' +
