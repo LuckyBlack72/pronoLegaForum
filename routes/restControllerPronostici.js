@@ -344,6 +344,19 @@ router.post('/savePronostici', function(req, res, next) {
 
 });
 
+
+router.post('/getDatePronostici', function(req, res, next) {
+
+  dbCall.getDatePronostici(req).then(function(data){ //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });
+
+});
+
+
 /* post getValoriPronosticiCalcoloClassifica */
 /* prende le classfiche finali delle competizioni pronosticate per stilare la classifica*/
 router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
