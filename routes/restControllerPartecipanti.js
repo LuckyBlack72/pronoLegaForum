@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var dbManager = require('../dbModule/dbManager');
 var db = dbManager.getDb();
+var dbCall = require('../dbModule/dbManagerPartecipanti');
 //var fs = require('fs');
 
 //indirizza le richieste a seconda di come cominciano
@@ -14,6 +15,7 @@ var db = dbManager.getDb();
 
 /* post getAnagraficaPartecipanti. */ 
 /* prende i dati dei partecipanti filtrandoli eventualmente per nickname */
+/*
 router.post('/getAnagraficaPartecipanti', function(req, res, next) {
 
   var nickname = ' ';
@@ -40,7 +42,9 @@ router.post('/getAnagraficaPartecipanti', function(req, res, next) {
   });
 
 });
+*/
 
+/*
 router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
 
   var nickname = req.body.anagraficaPartecipanti.nickname;
@@ -66,9 +70,11 @@ router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
   });    
 
 });
+*/
 
 
 /* POST checkPassword */
+/*
 router.post('/checkPassword', function(req, res, next) {
 
   var queryText = 'SELECT id, COUNT(*) FROM pronolegaforum.anagrafica_partecipanti WHERE ' +
@@ -78,6 +84,45 @@ router.post('/checkPassword', function(req, res, next) {
 
   db.one(queryText).then(function (data) {
     
+    if(parseInt(data.count) > 0){
+      res.status(200).json(data.id);
+    }else{
+      res.status(500).json('KO');
+    }  
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json('KO '+ '[' + error + ']');
+  });  
+  
+});
+*/
+
+//nuova gestione 
+router.post('/getAnagraficaPartecipanti', function(req, res, next) {
+
+  dbCall.getAnagraficaPartecipanti(req).then(function (data) { //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });  
+
+});
+
+router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
+
+  dbCall.saveAnagraficaPartecipanti(req).then(function(data){ //torna una promise
+      res.status(200).json('OK');
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json(error);
+  });  
+  
+});
+
+router.post('/checkPassword', function(req, res, next) {
+
+  dbCall.checkPassword(req).then(function(data){ //torna una promise
     if(parseInt(data.count) > 0){
       res.status(200).json(data.id);
     }else{

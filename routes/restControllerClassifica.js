@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var dbManager = require('../dbModule/dbManager');
-var db = dbManager.getDb();
+var dbCall = require('../dbModule/dbManagerClassifica');
 //var fs = require('fs');
 
 //indirizza le richieste a seconda di come cominciano
@@ -14,6 +13,7 @@ var db = dbManager.getDb();
 
 /* post getAnagraficaCompetizioni. */ 
 /* prende le competizioni filtrandole per stagione */
+/*
 router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
   var queryText = 'SELECT ' +
@@ -33,7 +33,6 @@ router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
 });
 
-
 router.post('/getStagioni', function(req, res, next) {
 
   var queryText = 'SELECT ' +
@@ -49,6 +48,32 @@ router.post('/getStagioni', function(req, res, next) {
   .catch(error => { //gestione errore
     res.status(500).json([]);
   });
+
+});
+*/
+
+/* nuova gestione */
+/* post getAnagraficaCompetizioni. */ 
+/* prende le competizioni filtrandole per stagione */
+router.post('/getAnagraficaCompetizioni', function(req, res, next) {
+
+  dbCall.getAnagraficaCompetizioni(req).then(function (data) { //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });  
+
+});
+
+router.post('/getStagioni', function(req, res, next) {
+
+  dbCall.getStagioni().then(function (data) { //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });  
 
 });
 

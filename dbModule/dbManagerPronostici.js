@@ -1,9 +1,6 @@
-var express = require('express');
-var router = express.Router();
-//var dbManager = require('../dbModule/dbManager');
-//var db = dbManager.getDb();
+var dbManager = require('./dbManager');
+var db = dbManager.getDb();
 //var fs = require('fs');
-var dbCall = require('../dbModule/dbManagerPronostici');
 
 //indirizza le richieste a seconda di come cominciano
 // le richieste qui sono tutte sotto richieste di /pronostici
@@ -16,8 +13,7 @@ var dbCall = require('../dbModule/dbManagerPronostici');
 
 /* post getValoriPronostici. */
 /* prende i record dalla tabella vallri_pronostici filtrandoli eventualmente per Stagione,id_competizione */
-/*
-router.post('/getValoriPronostici', function(req, res, next) {
+function getValoriPronostici (req) {
 
   var stagione = 0;
   if(req.body.stagione){
@@ -51,21 +47,14 @@ router.post('/getValoriPronostici', function(req, res, next) {
   }
   queryText = queryText + 'ORDER BY stagione, id_competizione';
 
-  db.any(queryText).then(function (listaValoriPronostici) {
-    //torno un'oggetto json
-    res.status(200).json(listaValoriPronostici);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
+  return db.any(queryText);
 
-});
-*/
+}
+
 
 /* post getPronostici. */
 /* prende i record dalla tabella pronostici filtrandoli eventualmente per Stagione,id_parecipanti,id_competizione */
-/*
-router.post('/getPronostici', function(req, res, next) {
+function getPronostici(req) {
 
   var stagione = 0;
   if(req.body.stagione){
@@ -119,8 +108,10 @@ router.post('/getPronostici', function(req, res, next) {
       if(whereClause > 0 ){
         queryText = queryText + 'AND ';  
       }
-      //queryText = queryText + 'id_partecipanti in ' +
-      //'(select id from pronolegaforum.anagrafica_partecipanti where nickname = ' + '\'' + nickname + '\'' + ' ) ';
+      /*
+      queryText = queryText + 'id_partecipanti in ' +
+      '(select id from pronolegaforum.anagrafica_partecipanti where nickname = ' + '\'' + nickname + '\'' + ' ) ';
+      */
      queryText = queryText + 'prc.nickname = ' + '\'' + nickname + '\'' + ' ) ';
       whereClause++;
     } 
@@ -134,76 +125,19 @@ router.post('/getPronostici', function(req, res, next) {
   }
   queryText = queryText + 'ORDER BY stagione, nickname, id_competizione';
 
-  db.any(queryText).then(function (listaPronostici) {
-    //torno un'oggetto json
-    res.status(200).json(listaPronostici);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
+  return db.any(queryText);
 
-});
-*/
+}
+
 /* POST savePronostici. */
 /* salva i pronostici di un partecipante sul DB */
-/* old version 
-router.post('/savePronostici', function(req, res, next) {
 
-  var stagione = 0;
-  if(req.body.stagione){
-    stagione = req.body.stagione;
-  }
-  var idPartecipanti = 0;
-  if(req.body.idPartecipanti){
-    idPartecipanti = req.body.idPartecipanti;
-  }
-
-  var idCompetizione = 0;
-  if(req.body.idCompetizione){
-    idCompetizione = req.body.idCompetizione;
-  } 
-
-  var pronostici = req.body.pronostici;
-
-  var queryText = ' ';
-  
-  //costruisco la insert
-  queryText = 'INSERT INTO pronolegaforum.pronostici ' +
-              '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
-              'VALUES ( ' + idPartecipanti + ', ' + stagione + ', ' + idCompetizione + ', ';
-  var pronoData = '\'{';
-  for (var i = 0 ; i < pronostici.length ; i++){
-    pronoData = pronoData + '"' + pronostici[i] + '"'; 
-    if(i < (pronostici.length - 1)){
-      pronoData = pronoData + ' , ';
-    }else{
-      pronoData = pronoData + ' ';
-    }
-  }
-  pronoData = pronoData + '}\'';
-  queryText = queryText + pronoData;
-  queryText = queryText + ' )';
-
-  //eseguo la insert
-  db.none(queryText)
-  .then(() => {
-      // success;
-      res.status(200).json('OK');
-  })
-  .catch(error => {
-      // error;
-      res.status(500).json(error);
-  });    
-
-});
-*/
-/*
-router.post('/savePronostici', function(req, res, next) {
+function savePronostici(req) {
 
   var pronoToSave = req.body.pronostici;
 
   //gestione transazionale delle insert
-  db.tx(function (t) {
+  return db.tx(function (t) {
 
     var queryText = 'DELETE FROM pronolegaforum.pronostici ' +
     'WHERE ' + 'id_partecipanti = ' + pronoToSave[0].id_partecipanti + ' AND ' + 
@@ -237,19 +171,11 @@ router.post('/savePronostici', function(req, res, next) {
       }       
       return t.batch(updates);
     });
-  })
-  .then(function (data) {
-    res.status(200).json('OK');
-  })
-  .catch(function (error) {
-    res.status(500).json('KO '+ '[' + error + ']');
   });
-  //----------------------------------------------------------
 
-});
-*/
-/*
-router.post('/getDatePronostici', function(req, res, next) {
+}
+
+function getDatePronostici(req) {
 
   var queryText = 'SELECT ' +
   'stagione, ' +
@@ -259,19 +185,11 @@ router.post('/getDatePronostici', function(req, res, next) {
   'FROM pronolegaforum.date_pronostici ' +  
   'WHERE '  + 'stagione = ' + req.body.stagione; 
 
-  db.any(queryText).then(function (datePronostici) {
+  return db.any(queryText);
 
-    //torno un'oggetto json
-    res.status(200).json(datePronostici);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
+}
 
-});
-*/
-/*
-router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
+function getValoriPronosticiCalcoloClassifica(req) {
 
   var stagione = req.body.stagione;
   var queryText = ' ';
@@ -290,71 +208,14 @@ router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
   'vpr.stagione = ' + stagione + ' ' +
   'ORDER BY vpr.id_competizione';
 
-  console.log(queryText);
+  return db.any(queryText);
 
-  db.any(queryText).then(function (listaValoriPronosticiClassifica) {
-    //torno un'oggetto json
-    res.status(200).json(listaValoriPronosticiClassifica);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
+}
 
-});
-*/
-
-/* NUOVA GESTIONE */
-/* post getValoriPronostici. */
-/* prende i record dalla tabella vallri_pronostici filtrandoli eventualmente per Stagione,id_competizione */
-router.post('/getValoriPronostici', function(req, res, next) {
-
-  dbCall.getValoriPronostici(req).then(function(data){ //torna una promise
-    res.status(200).json(data);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
-
-});
-
-/* post getPronostici. */
-/* prende i record dalla tabella pronostici filtrandoli eventualmente per Stagione,id_parecipanti,id_competizione */
-
-router.post('/getPronostici', function(req, res, next) {
-
-  dbCall.getPronostici(req).then(function(data){ //torna una promise
-    res.status(200).json(data);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
-
-});
-
-/* post savePronostici */
-/* salva i pronostici di un utente*/
-router.post('/savePronostici', function(req, res, next) {
-
-  dbCall.savePronostici(req).then(function(data){ //torna una promise
-    res.status(200).json('OK');
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json('KO '+ '[' + error + ']');
-  });
-
-});
-
-/* post getValoriPronosticiCalcoloClassifica */
-/* prende le classfiche finali delle competizioni pronosticate per stilare la classifica*/
-router.post('/getValoriPronosticiCalcoloClassifica', function(req, res, next) {
-
-  dbCall.getValoriPronosticiCalcoloClassifica(req).then(function(data){ //torna una promise
-    res.status(200).json(data);
-  })
-  .catch(error => { //gestione errore
-    res.status(500).json([]);
-  });
-
-});
-
-module.exports = router;
+module.exports = { 
+                    getValoriPronostici, 
+                    getPronostici, 
+                    savePronostici, 
+                    getDatePronostici, 
+                    getValoriPronosticiCalcoloClassifica
+                };
