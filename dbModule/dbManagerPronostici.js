@@ -135,12 +135,13 @@ function getPronostici(req) {
 function savePronostici(req) {
 
   var pronoToSave = req.body.pronostici;
+  var id_partecipanti = req.body.id_partecipanti;
 
   //gestione transazionale delle insert
   return db.tx(function (t) {
 
     var queryText = 'DELETE FROM pronolegaforum.pronostici ' +
-    'WHERE ' + 'id_partecipanti = ' + pronoToSave[0].id_partecipanti + ' AND ' + 
+    'WHERE ' + 'id_partecipanti = ' + id_partecipanti + ' AND ' + 
     'stagione = ' + pronoToSave[0].stagione;
 
     db.none(queryText).then(function () {
@@ -148,13 +149,15 @@ function savePronostici(req) {
       for (var x = 0 ; x < pronoToSave.length ; x++){
         //costruisco la insert
         queryText = '';
-        queryText = 'INSERT INTO pronolegaforum.pronostici ' +
-                    '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
-                    'VALUES ( ' + pronoToSave[x].id_partecipanti + ', ' + 
-                    pronoToSave[x].stagione + ', ' + 
-                    pronoToSave[x].id_competizione + ', ';
-        var pronoData = '\'{';
-        for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
+        if ( pronoToSave[x].id_partecipanti == id_partecipanti ){
+
+          queryText = 'INSERT INTO pronolegaforum.pronostici ' +
+          '( id_partecipanti, stagione, id_competizione, pronostici ) ' +
+          'VALUES ( ' + pronoToSave[x].id_partecipanti + ', ' + 
+          pronoToSave[x].stagione + ', ' + 
+          pronoToSave[x].id_competizione + ', ';
+          var pronoData = '\'{';
+          for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
           var valueProno = pronoToSave[x].pronostici[i].replace("'","''");
           pronoData = pronoData + '"' + valueProno + '"'; 
           if(i < (pronoToSave[x].pronostici.length - 1)){
@@ -162,12 +165,13 @@ function savePronostici(req) {
           }else{
             pronoData = pronoData + ' ';
           }
-        }
-        pronoData = pronoData + '}\'';
-        queryText = queryText + pronoData;
-        queryText = queryText + ' )';
+          }
+          pronoData = pronoData + '}\'';
+          queryText = queryText + pronoData;
+          queryText = queryText + ' )';
 
-        updates.push(db.none(queryText));
+          updates.push(db.none(queryText));
+        }
       }       
       return t.batch(updates);
     });
