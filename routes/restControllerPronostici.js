@@ -4,6 +4,7 @@ var router = express.Router();
 //var db = dbManager.getDb();
 //var fs = require('fs');
 var dbCall = require('../dbModule/dbManagerPronostici');
+var mailManager = require('../utils/mailManager');
 
 //indirizza le richieste a seconda di come cominciano
 // le richieste qui sono tutte sotto richieste di /pronostici
@@ -336,6 +337,7 @@ router.post('/getPronostici', function(req, res, next) {
 router.post('/savePronostici', function(req, res, next) {
 
   dbCall.savePronostici(req).then(function(data){ //torna una promise
+    mailManager.notifyInsertedProno(req.body.nickname);
     res.status(200).json('OK');
   })
   .catch(error => { //gestione errore
