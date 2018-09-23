@@ -63,11 +63,24 @@ function checkPassword(request) {
 
 }
 
+function checkAdminPassword(request) {
+
+  var queryText = 'SELECT COUNT(*) FROM pronolegaforum.admin_password WHERE ' +
+  'password = ' + 'MD5(' + '\'' + request.body.password + '\'' + ')'; //to encrypt password
+
+  console.log(queryText);
+
+    return db.one(queryText);
+
+
+}
+
 
 module.exports = {
 
     getAnagraficaPartecipanti,
     saveAnagraficaPartecipanti,
-    checkPassword
+    checkPassword,
+    checkAdminPassword
 
 };

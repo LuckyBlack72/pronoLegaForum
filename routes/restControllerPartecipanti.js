@@ -135,4 +135,19 @@ router.post('/checkPassword', function(req, res, next) {
   
 });
 
+router.post('/checkAdminPassword', function(req, res, next) {
+
+  dbCall.checkAdminPassword(req).then(function(data){ //torna una promise
+    if(parseInt(data.count) > 0){
+      res.status(200).json('OK');
+    }else{
+      res.status(500).json('KO');
+    }  
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json('KO '+ '[' + error + ']');
+  });  
+  
+});
+
 module.exports = router;
