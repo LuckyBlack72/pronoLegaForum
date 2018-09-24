@@ -43,9 +43,12 @@ function saveAnagraficaPartecipanti(request) {
   //costruisco la insert
   queryText = 'INSERT INTO pronolegaforum.anagrafica_partecipanti ' +
               '( nickname, email_address, password_value ) ' +
-              -'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + 'MD5(' + '\'' + password_value + '\'' + ')' + ' )';
+              'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + 'MD5(' + '\'' + password_value + '\'' + ')' + ' )';
 
   //eseguo la insert
+
+  console.log(queryText);
+
   return db.none(queryText);
 
 }
