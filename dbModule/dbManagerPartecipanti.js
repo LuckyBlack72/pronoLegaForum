@@ -43,7 +43,7 @@ function saveAnagraficaPartecipanti(request) {
   //costruisco la insert
   queryText = 'INSERT INTO pronolegaforum.anagrafica_partecipanti ' +
               '( nickname, email_address, password_value ) ' +
-              'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + '\'' + password_value + '\'' + ' )';
+              -'VALUES ( ' + '\'' + nickname + '\'' + ', ' + '\'' + email_address + '\'' + ', ' + 'MD5(' + '\'' + password_value + '\'' + ')' + ' )';
 
   //eseguo la insert
   return db.none(queryText);
@@ -56,7 +56,7 @@ function checkPassword(request) {
 
   var queryText = 'SELECT id, COUNT(*) FROM pronolegaforum.anagrafica_partecipanti WHERE ' +
   'nickname = ' + '\'' + request.body.nickname + '\'' + ' AND ' +
-  'password_value = ' + '\'' + request.body.password + '\'' + ' ' +
+  'password_value = ' + 'MD5(' + '\'' + request.body.password + '\'' + ') ' + //to encrypt password
   'GROUP BY id';
 
     return db.one(queryText);
@@ -68,9 +68,7 @@ function checkAdminPassword(request) {
   var queryText = 'SELECT COUNT(*) FROM pronolegaforum.admin_password WHERE ' +
   'password = ' + 'MD5(' + '\'' + request.body.password + '\'' + ')'; //to encrypt password
 
-  console.log(queryText);
-
-    return db.one(queryText);
+  return db.one(queryText);
 
 
 }
