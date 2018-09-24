@@ -47,8 +47,6 @@ function saveAnagraficaPartecipanti(request) {
 
   //eseguo la insert
 
-  console.log(queryText);
-
   return db.none(queryText);
 
 }
