@@ -120,6 +120,17 @@ router.post('/saveAnagraficaPartecipanti', function(req, res, next) {
   
 });
 
+router.post('/updateAnagraficaPartecipanti', function(req, res, next) {
+
+  dbCall.updateAnagraficaPartecipanti(req).then(function(data){ //torna una promise
+      res.status(200).json('OK');
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json(error);
+  });  
+  
+});
+
 router.post('/checkPassword', function(req, res, next) {
 
   dbCall.checkPassword(req).then(function(data){ //torna una promise

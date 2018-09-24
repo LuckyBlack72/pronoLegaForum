@@ -51,6 +51,26 @@ function saveAnagraficaPartecipanti(request) {
 
 }
 
+function updateAnagraficaPartecipanti(request) {
+
+  var nickname = request.body.anagraficaPartecipanti.nickname;
+  var email_address = request.body.anagraficaPartecipanti.email_address;
+  var password_value = request.body.anagraficaPartecipanti.password_value;
+
+  var queryText = ' ';
+  
+  //costruisco la insert
+  queryText = 'UPDATE pronolegaforum.anagrafica_partecipanti ' +
+              'SET email_address = ' + '\'' + email_address + '\'' + ', ' +
+              'password_value = ' + 'MD5(' + '\'' + password_value + '\'' + ')' +
+              'WHERE nickname = ' + '\'' + nickname + '\'';
+
+  //eseguo la update
+
+  return db.none(queryText);
+
+}
+
 /* POST checkPassword */
 
 function checkPassword(request) {
@@ -79,6 +99,7 @@ module.exports = {
 
     getAnagraficaPartecipanti,
     saveAnagraficaPartecipanti,
+    updateAnagraficaPartecipanti,
     checkPassword,
     checkAdminPassword
 
