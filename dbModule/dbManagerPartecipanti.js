@@ -61,12 +61,15 @@ function updateAnagraficaPartecipanti(request) {
   
   //costruisco la insert
   queryText = 'UPDATE pronolegaforum.anagrafica_partecipanti ' +
-              'SET email_address = ' + '\'' + email_address + '\'' + ', ' +
-              'password_value = ' + 'MD5(' + '\'' + password_value + '\'' + ')' +
-              'WHERE nickname = ' + '\'' + nickname + '\'';
+              'SET ' + 
+              'email_address = ' + '\'' + email_address + '\'';
+  if (password_value !== 'ZYZYZY') {
+    queryText = queryText + ', ' +
+    'password_value = ' + 'MD5(' + '\'' + password_value + '\'' + ') ';
+  }
+  queryText = queryText + 'WHERE nickname = ' + '\'' + nickname + '\'';
 
-  //eseguo la update
-
+  //eseguo update
   return db.none(queryText);
 
 }
