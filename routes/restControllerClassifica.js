@@ -79,8 +79,6 @@ router.post('/getStagioni', function(req, res, next) {
 
 router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
-  console.log('aaaaaa');
-
   dbCall.saveClassificaCompetizioni(req).then(function(data){ //torna una promise
     res.status(200).json('OK');
   })

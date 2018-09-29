@@ -52,7 +52,7 @@ function saveClassificaCompetizioni(req) {
     }
     queryText = queryText + ids + ' )';
 
-console.log('prima ' + queryText);    
+// console.log('prima ' + queryText);    
 
     db.none(queryText).then(function () {
       var updates = [];
@@ -78,7 +78,7 @@ console.log('prima ' + queryText);
         'id_competizione = ' + classificaToSave[x].id_competizione;
         queryText = queryText + whereClause;
 
-console.log('dopo ' + queryText);        
+// console.log('dopo ' + queryText);        
 
         updates.push(db.none(queryText));
       }       
