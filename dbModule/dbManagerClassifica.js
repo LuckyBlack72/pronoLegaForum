@@ -42,7 +42,15 @@ function saveClassificaCompetizioni(req) {
     var queryText = 'UPDATE pronolegaforum.valori_pronostici ' +
     'SET valori_pronostici_classifica = NULL ' +
     'WHERE ' + 
-    'stagione = ' + stagione;
+    'stagione = ' + stagione + ' AND ' + 'id_competizione IN ( ';
+    var ids = '';
+    for (var i = 0; i < classificaToSave.length; i++) {
+      ids = ids + classificaToSave[i].id_competizione;
+      if( i < (classificaToSave.length - 1) ){
+        ids = ids + ', ';
+      }
+    }
+    queryText = queryText + ids + ' )';
 
 console.log('prima ' + queryText);    
 
