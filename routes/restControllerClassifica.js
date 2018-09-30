@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var dbCall = require('../dbModule/dbManagerClassifica');
+var mailManager = require('../utils/mailManager');
 //var fs = require('fs');
+
 
 //indirizza le richieste a seconda di come cominciano
 // le richieste qui sono tutte sotto richieste di /classifica
@@ -80,6 +82,7 @@ router.post('/getStagioni', function(req, res, next) {
 router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
   dbCall.saveClassificaCompetizioni(req).then(function(data){ //torna una promise
+    mailManager.notifyUpdateClassfica(req.body.classificaCompetizioni[0].stagione);
     res.status(200).json('OK');
   })
   .catch(error => { //gestione errore

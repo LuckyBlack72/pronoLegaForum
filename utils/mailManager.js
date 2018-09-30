@@ -1,4 +1,5 @@
 var nodeMailer = require('nodemailer');
+var dbCallClassifica = require('../dbModule/dbManagerClassifica');
 
 function notifyInsertedProno(user) {
 
@@ -33,9 +34,67 @@ function notifyInsertedProno(user) {
 
 }
 
+function notifyUpdateClassfica(stagione) {
+
+    dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
+        
+        const oggi = new Date();
+        const dateString = oggi.getDate() +
+        '/' + 
+        ((oggi.getMonth() + 1) > 9 ? (oggi.getMonth() + 1) : '0' + (oggi.getMonth() + 1)) +
+        '/' + 
+        oggi.getFullYear();
+        
+        let recipients = [];
+        for( let i = 0; i < emailAddress.length; i++){
+            recipients.push(emailAddress[i].email_address);
+        }
+
+        const mailServer = {
+            host: 'smtps.aruba.it',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'sorteggio@legaforum.com',
+                pass: 'provalf18'
+            }
+        };
+
+        const transporter = nodeMailer.createTransport(mailServer);
+
+        const mailOptions = {
+        from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+        bcc: recipients, // list of receivers in bcc
+        subject: 'Notifica Aggiornamento Classifica al ' + dateString, // Subject line
+        text: 'La classfica generale è stata aggiornata al ' + dateString, // plain text body
+        html: '<b>' + 'La classfica generale è stata aggiornata al ' + dateString + '</b>', // html body
+        attachments: []
+        };        
+
+        transporter.sendMail(mailOptions, (error, info) => {
+
+            if (error) {
+                console.log(error);
+            }else{
+                console.log('Message %s sent: %s', info.messageId, info.response);
+            }
+        
+        });        
+      
+    })
+    .catch(error => { //gestione errore
+    
+        console.log(error);
+    
+    });
+
+}
+
+
 module.exports = {
 
-    notifyInsertedProno
+    notifyInsertedProno,
+    notifyUpdateClassfica
 
 };
   

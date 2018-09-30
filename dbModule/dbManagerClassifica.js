@@ -88,5 +88,18 @@ function saveClassificaCompetizioni(req) {
 
 }
 
+function getEmailAddressPartecipanti (stagione) {
 
-module.exports = { getAnagraficaCompetizioni, getStagioni, saveClassificaCompetizioni };
+  var queryText = 'SELECT ' +
+  'DISTINCT p.email_address ' +
+  'FROM ' +
+  'pronolegaforum.anagrafica_partecipanti p INNER JOIN pronolegaforum.pronostici pr ON p.id = pr.id_partecipanti ' +
+  'WHERE ' +
+  'p.email_address IS NOT NULL ' + 'AND ' +
+  'pr.stagione = ' + stagione;
+
+  return db.any(queryText);
+
+}
+
+module.exports = { getAnagraficaCompetizioni, getStagioni, saveClassificaCompetizioni, getEmailAddressPartecipanti };
