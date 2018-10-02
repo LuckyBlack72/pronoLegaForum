@@ -7,9 +7,13 @@ function getAnagraficaCompetizioni (req) {
 
   var queryText = 'SELECT ' +
   'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo, tipo_competizione ' +
-  'FROM pronolegaforum.anagrafica_competizioni ' +  
-  'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
-  'ORDER BY id';
+  'FROM pronolegaforum.anagrafica_competizioni ';
+  if(req.body.stagione !=0){
+    queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
+    'ORDER BY id';
+  } else {
+    queryText += 'ORDER BY competizione';
+  }
 
   return db.any(queryText);
 
