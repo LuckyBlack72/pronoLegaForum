@@ -39,7 +39,8 @@ function notifyUpdateClassfica(stagione) {
     dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
         
         const oggi = new Date();
-        const dateString = oggi.getDate() +
+        const dateString = 
+        (oggi.getDate() > 9 ? oggi.getDate() : '0' + oggi.getDate()) +
         '/' + 
         ((oggi.getMonth() + 1) > 9 ? (oggi.getMonth() + 1) : '0' + (oggi.getMonth() + 1)) +
         '/' + 
