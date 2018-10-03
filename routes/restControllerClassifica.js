@@ -91,4 +91,15 @@ router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
 });
 
+router.post('/saveAnagraficaCompetizioni', function(req, res, next) {
+
+  dbCall.saveAnagraficaCompetizioni(req).then(function(data){ //torna una promise
+    res.status(200).json('OK');
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json('KO '+ '[' + error + ']');
+  });
+
+});
+
 module.exports = router;

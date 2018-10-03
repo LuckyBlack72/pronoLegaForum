@@ -106,4 +106,75 @@ function getEmailAddressPartecipanti (stagione) {
 
 }
 
-module.exports = { getAnagraficaCompetizioni, getStagioni, saveClassificaCompetizioni, getEmailAddressPartecipanti };
+function saveAnagraficaCompetizioni(request) {
+
+  var competizione = request.body.anagraficaCompetizioni;
+
+  var queryText = ' ';
+  var pronoData = ' ';
+  var valueProno = ' ';
+  
+  //costruisco la insert
+  if (competizione.id === 0) {
+
+    queryText = 'INSERT INTO pronolegaforum.anagrafica_competizioni ' +
+    '( competizione, nome_pronostico, anni_competizione, punti_esatti, ' +
+    'punti_lista, numero_pronostici, logo, tipo_competizione ) ' +
+    'VALUES ( ' + 
+    '\'' + competizione.competizione + '\'' + ', ' +
+    '\'' + competizione.nome_pronostico + '\'' + ', ';
+    pronoData = '\'{ ';
+    for (var i = 0 ; i < competizione.anni_competizione.length ; i++){
+      valueProno = competizione.anni_competizione[i];
+      pronoData = pronoData + valueProno; 
+      if(i < (competizione.anni_competizione.length - 1)){
+        pronoData = pronoData + ' , ';
+      }else{
+        pronoData = pronoData + ' ';
+      }
+    }
+    pronoData = pronoData + '}\'';
+    queryText = queryText + pronoData + ', ';
+    queryText = queryText +
+    competizione.punti_esatti + ', ' +
+    competizione.punti_lista + ', ' +
+    competizione.numero_pronostici + ', ' +
+    '\'' + competizione.logo + '\'' + ', ' +
+    '\'' + competizione.tipo_competizione + '\'' + ' ' +
+    ')';
+
+  } else {
+
+    queryText = 'UPDATE pronolegaforum.anagrafica_competizioni ' +
+    'SET anni_competizione = ';
+    pronoData = '\'{ ';
+    for (var x = 0 ; x < competizione.anni_competizione.length ; x++){
+      valueProno = competizione.anni_competizione[x];
+      pronoData = pronoData + valueProno; 
+      if(x < (competizione.anni_competizione.length - 1)){
+        pronoData = pronoData + ' , ';
+      }else{
+        pronoData = pronoData + ' ';
+      }
+    }
+    pronoData = pronoData + '}\'';
+    queryText = queryText + pronoData + ' ';
+    queryText = queryText + 'WHERE id = ' + competizione.id;
+
+  }
+  //eseguo la insert
+
+  console.log(queryText);
+
+  return db.none(queryText);
+
+}
+
+
+module.exports = { 
+                    getAnagraficaCompetizioni,
+                    getStagioni,
+                    saveClassificaCompetizioni,
+                    getEmailAddressPartecipanti,
+                    saveAnagraficaCompetizioni
+                  };
