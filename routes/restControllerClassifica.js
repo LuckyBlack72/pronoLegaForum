@@ -102,4 +102,15 @@ router.post('/saveAnagraficaCompetizioni', function(req, res, next) {
 
 });
 
+router.post('/getTipoCompetizione', function(req, res, next) {
+
+  dbCall.getTipoCompetizione().then(function (data) { //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });  
+
+});
+
 module.exports = router;

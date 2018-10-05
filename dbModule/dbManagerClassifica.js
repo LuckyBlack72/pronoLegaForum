@@ -170,11 +170,23 @@ function saveAnagraficaCompetizioni(request) {
 
 }
 
+function getTipoCompetizione () {
+
+  var queryText = 'SELECT ' +
+  'tipo, nome ' +
+  'FROM pronolegaforum.tipo_competizione ' +  
+  'ORDER BY nome';
+
+  return db.any(queryText);
+
+}
+
 
 module.exports = { 
                     getAnagraficaCompetizioni,
                     getStagioni,
                     saveClassificaCompetizioni,
                     getEmailAddressPartecipanti,
-                    saveAnagraficaCompetizioni
+                    saveAnagraficaCompetizioni,
+                    getTipoCompetizione
                   };
