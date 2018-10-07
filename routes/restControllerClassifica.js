@@ -3,6 +3,8 @@ var router = express.Router();
 var dbCall = require('../dbModule/dbManagerClassifica');
 var mailManager = require('../utils/mailManager');
 //var fs = require('fs');
+var multer  = require('multer');
+var upload = multer({ dest: 'logos/' });
 
 
 //indirizza le richieste a seconda di come cominciano
@@ -91,7 +93,7 @@ router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
 });
 
-router.post('/saveAnagraficaCompetizioni', function(req, res, next) {
+router.post('/saveAnagraficaCompetizioni', upload.single('logo'), function(req, res, next) {
 
   dbCall.saveAnagraficaCompetizioni(req).then(function(data){ //torna una promise
     res.status(200).json('OK');
