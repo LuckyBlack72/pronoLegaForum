@@ -6,7 +6,7 @@ var db = dbManager.getDb();
 function getAnagraficaCompetizioni (req) {
 
   var queryText = 'SELECT ' +
-  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo, tipo_competizione ' +
+  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo, tipo_competizione, tipo_pronostici ' +
   'FROM pronolegaforum.anagrafica_competizioni ';
   if(req.body.stagione !=0){
     queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
@@ -119,7 +119,7 @@ function saveAnagraficaCompetizioni(request) {
 
     queryText = 'INSERT INTO pronolegaforum.anagrafica_competizioni ' +
     '( competizione, nome_pronostico, anni_competizione, punti_esatti, ' +
-    'punti_lista, numero_pronostici, logo, tipo_competizione ) ' +
+    'punti_lista, numero_pronostici, logo, tipo_competizione, tipo_pronostici ) ' +
     'VALUES ( ' + 
     '\'' + competizione.competizione + '\'' + ', ' +
     '\'' + competizione.nome_pronostico + '\'' + ', ';
@@ -140,7 +140,8 @@ function saveAnagraficaCompetizioni(request) {
     competizione.punti_lista + ', ' +
     competizione.numero_pronostici + ', ' +
     '\'' + competizione.logo + '\'' + ', ' +
-    '\'' + competizione.tipo_competizione + '\'' + ' ' +
+    '\'' + competizione.tipo_competizione + '\'' + ', ' +
+    '\'' + competizione.tipo_pronostici + '\'' + ' ' +
     ')';
 
   } else {
