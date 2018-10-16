@@ -6,7 +6,9 @@ var db = dbManager.getDb();
 function getAnagraficaCompetizioni (req) {
 
   var queryText = 'SELECT ' +
-  'id, competizione, nome_pronostico, anni_competizione, punti_esatti, punti_lista, numero_pronostici, logo, tipo_competizione, tipo_pronostici ' +
+  'id, competizione, nome_pronostico, anni_competizione, ' +
+  'punti_esatti, punti_lista, numero_pronostici, logo, ' + 
+  'tipo_competizione, tipo_pronostici, date_competizione' +
   'FROM pronolegaforum.anagrafica_competizioni ';
   if(req.body.stagione !=0){
     queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
