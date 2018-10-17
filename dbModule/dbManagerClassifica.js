@@ -167,6 +167,14 @@ function saveAnagraficaCompetizioni(request) {
   }
   //eseguo la insert
 
+  /*
+  update pronolegaforum.anagrafica_competizioni 
+  set date_competizione = 
+	ARRAY[
+				(2018, '2018-09-01 00:00:00', '2018-10-31 00:00:00', '2019-06-01 00:00:00' )::pronolegaforum.date_competizione
+	];  
+  */
+
   console.log(queryText);
 
   return db.none(queryText);
