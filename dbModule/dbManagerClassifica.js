@@ -8,7 +8,7 @@ function getAnagraficaCompetizioni (req) {
   var queryText = 'SELECT ' +
   'id, competizione, nome_pronostico, anni_competizione, ' +
   'punti_esatti, punti_lista, numero_pronostici, logo, ' + 
-  'tipo_competizione, tipo_pronostici, date_competizione' +
+  'tipo_competizione, tipo_pronostici, date_competizione ' +
   'FROM pronolegaforum.anagrafica_competizioni ';
   if(req.body.stagione !=0){
     queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
@@ -115,13 +115,14 @@ function saveAnagraficaCompetizioni(request) {
   var queryText = ' ';
   var pronoData = ' ';
   var valueProno = ' ';
+  var date_competizione = '';
   
   //costruisco la insert
   if (competizione.id === 0) {
 
     queryText = 'INSERT INTO pronolegaforum.anagrafica_competizioni ' +
     '( competizione, nome_pronostico, anni_competizione, punti_esatti, ' +
-    'punti_lista, numero_pronostici, logo, tipo_competizione, tipo_pronostici ) ' +
+    'punti_lista, numero_pronostici, logo, tipo_competizione, tipo_pronostici, date_competizione ) ' +
     'VALUES ( ' + 
     '\'' + competizione.competizione + '\'' + ', ' +
     '\'' + competizione.nome_pronostico + '\'' + ', ';
@@ -143,8 +144,24 @@ function saveAnagraficaCompetizioni(request) {
     competizione.numero_pronostici + ', ' +
     '\'' + competizione.logo + '\'' + ', ' +
     '\'' + competizione.tipo_competizione + '\'' + ', ' +
-    '\'' + competizione.tipo_pronostici + '\'' + ' ' +
-    ')';
+    '\'' + competizione.tipo_pronostici + '\'' + ', ';
+    date_competizione = date_competizione + 'ARRAY [ ';
+    for (let y = 0; y < competizione.date_pronostici.length; y++){
+      date_competizione = date_competizione + '( ' +
+      competizione.date_pronostici[y].stagione + ', ' +
+      '\'' + competizione.date_pronostici[y].data_apertura + '00:00:01' + '\'' + ', ' +
+      '\'' + competizione.date_pronostici[y].data_chiusura + '23:59:59' + '\'' + ', ' +
+      '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '23:59:59' + '\'' + ' ' +
+      ' )::pronolegagforum.date_competizione ';
+      if(y < (competizione.date_competizione.length - 1)){
+        date_competizione = date_competizione + ', ';
+      }else{
+        date_competizione = date_competizione + ' ';
+      }
+    }
+    date_competizione = date_competizione + '] ';
+    queryText = queryText + date_competizione ;
+    queryText = queryText + ')';
 
   } else {
 
@@ -161,7 +178,32 @@ function saveAnagraficaCompetizioni(request) {
       }
     }
     pronoData = pronoData + '}\'';
-    queryText = queryText + pronoData + ' ';
+    queryText = queryText + pronoData + ', ';
+    queryText = queryText + 'date_competizione = ';
+    date_competizione = date_competizione + 'ARRAY [ ';
+    for (let y = 0; y < competizione.date_pronostici.length; y++){
+      date_competizione = date_competizione + '( ' +
+      competizione.date_pronostici[y].stagione + ', ';
+      if(y < (competizione.date_competizione.length - 1)){
+        date_competizione = date_competizione +
+        '\'' + competizione.date_pronostici[y].data_apertura + '\'' + ', ' +
+        '\'' + competizione.date_pronostici[y].data_chiusura + '\'' + ', ' +
+        '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '\'' + ' ';
+      } else {
+        date_competizione = date_competizione +
+        '\'' + competizione.date_pronostici[y].data_apertura + '00:00:01' + '\'' + ', ' +
+        '\'' + competizione.date_pronostici[y].data_chiusura + '23:59:59' + '\'' + ', ' +
+        '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '23:59:59' + '\'' + ' ';
+      }
+      date_competizione = date_competizione + ' )::pronolegagforum.date_competizione ';
+      if(y < (competizione.date_competizione.length - 1)){
+        date_competizione = date_competizione + ', ';
+      }else{
+        date_competizione = date_competizione + ' ';
+      }
+    }
+    date_competizione = date_competizione + '] ';
+    queryText = queryText = queryText + date_competizione +  ' '; 
     queryText = queryText + 'WHERE id = ' + competizione.id;
 
   }
