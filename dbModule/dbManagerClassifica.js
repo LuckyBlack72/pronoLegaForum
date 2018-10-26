@@ -21,14 +21,15 @@ function getAnagraficaCompetizioni (req) {
 
 }
 
-function getIdCompetiziome (request) {
+function getIdCompetizione (request) {
 
   var competizione = request.body.anagraficaCompetizioni;
+
   var queryText = 'SELECT ' +
   'id ' + 
   'FROM pronolegaforum.anagrafica_competizioni ';
   queryText += 'WHERE '  + 
-  competizione.stagioni_competizione[(competizione.stagioni_competizione.length - 1)] + 
+  competizione.anni_competizione[(competizione.anni_competizione.length - 1)] + 
   ' = ANY (anni_competizione) AND ' + 
   'competizione = ' + '\'' + competizione.competizione + '\'';
 
@@ -123,6 +124,7 @@ function getEmailAddressPartecipanti (stagione) {
 
 }
 
+/* solo anagrafica
 function saveAnagraficaCompetizioni(request) {
 
   var competizione = request.body.anagraficaCompetizioni;
@@ -226,43 +228,31 @@ function saveAnagraficaCompetizioni(request) {
   }
   //eseguo la insert
 
-  /*
-  update pronolegaforum.anagrafica_competizioni 
-  set date_competizione = 
-	ARRAY[
-				(2018, '2018-09-01 00:00:00', '2018-10-31 00:00:00', '2019-06-01 00:00:00' )::pronolegaforum.date_competizione
-	];  
-  */
-
   console.log(queryText);
 
   return db.none(queryText);
 
 }
-
-function getTipoCompetizione () {
-
-  var queryText = 'SELECT ' +
-  'tipo, nome ' +
-  'FROM pronolegaforum.tipo_competizione ' +  
-  'ORDER BY nome';
-
-  return db.any(queryText);
-
-}
-
-
-module.exports = { 
-                    getAnagraficaCompetizioni,
-                    getStagioni,
-                    saveClassificaCompetizioni,
-                    getEmailAddressPartecipanti,
-                    saveAnagraficaCompetizioni,
-                    getTipoCompetizione
-                  };
-
+*/
 
 /*
+update pronolegaforum.anagrafica_competizioni 
+set date_competizione = 
+ARRAY[
+      (2018, '2018-09-01 00:00:00', '2018-10-31 00:00:00', '2019-06-01 00:00:00' )::pronolegaforum.date_competizione
+];  
+*/
+
+function saveAnagraficaCompetizioni(request) {
+
+  var competizione = request.body.anagraficaCompetizioni;
+  var valoriPronostici = request.body.valoriPronostici;
+
+  var queryText = ' ';
+  var pronoData = ' ';
+  var valueProno = ' ';
+  var date_competizione = '';
+
   //gestione transazionale delle insert
   return db.tx(function (t) {
 
@@ -359,13 +349,16 @@ module.exports = {
     //eseguo la insert
 
     db.none(queryText).then(function () {
+
       var updates = [];
+      getIdCompetizione(request).then(function (data) {
+
         queryText = '';
         queryText = 'INSERT INTO pronolegaforum.valori_pronostici ' +
-                    '(stagione, id_competizione, valori_pronostici, valori_pronostici_classifica) ' +
+                    '( stagione, id_competizione, valori_pronostici, valori_pronostici_classifica ) ' +
                     'VALUES ( ' + 
                     competizione.anni_competizione[(competizione.anni_competizione.length - 1)] + ', ' +
-                    
+                    data[0].id + ', ';
         var pronoData = '\'{';
         for (var i = 0 ; i < valoriPronostici.length ; i++){
           var valueProno = valoriPronostici[i].prono.replace("'","''");
@@ -376,11 +369,40 @@ module.exports = {
             pronoData = pronoData + ' ';
           }
         }
-        pronoData = pronoData + '}\'' + ' ';
-        queryText = queryText + pronoData;
+        pronoData = pronoData + '}\'';
+        queryText = queryText + pronoData + ', ' + 
+        'NULL' + ' )';
+
+console.log(queryText);        
+
         updates.push(db.none(queryText));
         return t.batch(updates);
-    });
-  });
+      });
 
-*/
+    });
+
+  });  
+
+}
+
+function getTipoCompetizione () {
+
+  var queryText = 'SELECT ' +
+  'tipo, nome ' +
+  'FROM pronolegaforum.tipo_competizione ' +  
+  'ORDER BY nome';
+
+  return db.any(queryText);
+
+}
+
+
+module.exports = { 
+                    getAnagraficaCompetizioni,
+                    getStagioni,
+                    saveClassificaCompetizioni,
+                    getEmailAddressPartecipanti,
+                    saveAnagraficaCompetizioni,
+                    getTipoCompetizione,
+                    getIdCompetizione
+                  };
