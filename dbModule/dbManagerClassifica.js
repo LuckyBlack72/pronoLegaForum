@@ -21,6 +21,18 @@ function getAnagraficaCompetizioni (req) {
 
 }
 
+function getIdCompetiziome (req) {
+
+  var queryText = 'SELECT ' +
+  'id ' + 
+  'FROM pronolegaforum.anagrafica_competizioni ';
+  queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) AND ' + 
+  'competizione = ' + '\'' + req.body.competizione + '\'';
+
+  return db.any(queryText);
+
+}
+
 /* prende la lista delle stagioni in cui ci sono pronostici */
 
 function getStagioni () {
