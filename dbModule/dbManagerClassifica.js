@@ -21,13 +21,16 @@ function getAnagraficaCompetizioni (req) {
 
 }
 
-function getIdCompetiziome (req) {
+function getIdCompetiziome (request) {
 
+  var competizione = request.body.anagraficaCompetizioni;
   var queryText = 'SELECT ' +
   'id ' + 
   'FROM pronolegaforum.anagrafica_competizioni ';
-  queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) AND ' + 
-  'competizione = ' + '\'' + req.body.competizione + '\'';
+  queryText += 'WHERE '  + 
+  competizione.stagioni_competizione[(competizione.stagioni_competizione.length - 1)] + 
+  ' = ANY (anni_competizione) AND ' + 
+  'competizione = ' + '\'' + competizione.competizione + '\'';
 
   return db.any(queryText);
 
