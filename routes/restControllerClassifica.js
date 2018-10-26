@@ -4,7 +4,17 @@ var dbCall = require('../dbModule/dbManagerClassifica');
 var mailManager = require('../utils/mailManager');
 //var fs = require('fs');
 var multer  = require('multer');
-var upload = multer({ dest: 'logos/' });
+
+// Multer storage options
+var storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'logos/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+var upload = multer({ storage: storage });
 
 
 //indirizza le richieste a seconda di come cominciano
@@ -105,13 +115,7 @@ router.post('/saveAnagraficaCompetizioni', function(req, res, next) {
 });
 
 router.post('/uploadLogo', upload.single('logo'), function(req, res, next) {
-
-  if (!req.logo) {
-    res.status(500).json('KO');
-  } else {
-    res.status(200).json('OK');
-  }
-
+  res.status(200).json('OK');
 });
 
 router.post('/getTipoCompetizione', function(req, res, next) {
