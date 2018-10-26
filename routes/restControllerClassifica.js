@@ -8,7 +8,7 @@ var multer  = require('multer');
 // Multer storage options
 var storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, 'logos/');
+    cb(null, 'public/logos/');
   },
   filename: function(req, file, cb) {
     cb(null, file.originalname);
