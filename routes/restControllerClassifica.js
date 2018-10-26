@@ -93,7 +93,7 @@ router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
 });
 
-router.post('/saveAnagraficaCompetizioni', upload.single('logo'), function(req, res, next) {
+router.post('/saveAnagraficaCompetizioni', function(req, res, next) {
 
   dbCall.saveAnagraficaCompetizioni(req).then(function(data){ //torna una promise
     res.status(200).json('OK');
@@ -101,6 +101,16 @@ router.post('/saveAnagraficaCompetizioni', upload.single('logo'), function(req, 
   .catch(error => { //gestione errore
     res.status(500).json('KO '+ '[' + error + ']');
   });
+
+});
+
+router.post('/uploadLogo', upload.single('logo'), function(req, res, next) {
+
+  if (!req.logo) {
+    res.status(500).json('KO');
+  } else {
+    res.status(200).json('OK');
+  }
 
 });
 

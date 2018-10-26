@@ -112,6 +112,8 @@ function saveAnagraficaCompetizioni(request) {
 
   var competizione = request.body.anagraficaCompetizioni;
 
+  console.log(competizione);
+
   var queryText = ' ';
   var pronoData = ' ';
   var valueProno = ' ';
@@ -146,13 +148,13 @@ function saveAnagraficaCompetizioni(request) {
     '\'' + competizione.tipo_competizione + '\'' + ', ' +
     '\'' + competizione.tipo_pronostici + '\'' + ', ';
     date_competizione = date_competizione + 'ARRAY [ ';
-    for (let y = 0; y < competizione.date_pronostici.length; y++){
+    for (let y = 0; y < competizione.date_competizione.length; y++){
       date_competizione = date_competizione + '( ' +
-      competizione.date_pronostici[y].stagione + ', ' +
-      '\'' + competizione.date_pronostici[y].data_apertura + '00:00:01' + '\'' + ', ' +
-      '\'' + competizione.date_pronostici[y].data_chiusura + '23:59:59' + '\'' + ', ' +
-      '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '23:59:59' + '\'' + ' ' +
-      ' )::pronolegagforum.date_competizione ';
+      competizione.date_competizione[y].stagione + ', ' +
+      '\'' + competizione.date_competizione[y].data_apertura.substring(0,10) + ' 00:00:01' + '\'' + ', ' +
+      '\'' + competizione.date_competizione[y].data_chiusura.substring(0,10) + ' 23:59:59' + '\'' + ', ' +
+      '\'' + competizione.date_competizione[y].data_calcolo_classifica.substring(0,10) + ' 23:59:59' + '\'' + ' ' +
+      ')::pronolegaforum.date_competizione ';
       if(y < (competizione.date_competizione.length - 1)){
         date_competizione = date_competizione + ', ';
       }else{
@@ -181,21 +183,21 @@ function saveAnagraficaCompetizioni(request) {
     queryText = queryText + pronoData + ', ';
     queryText = queryText + 'date_competizione = ';
     date_competizione = date_competizione + 'ARRAY [ ';
-    for (let y = 0; y < competizione.date_pronostici.length; y++){
+    for (let y = 0; y < competizione.date_competizione.length; y++){
       date_competizione = date_competizione + '( ' +
       competizione.date_pronostici[y].stagione + ', ';
       if(y < (competizione.date_competizione.length - 1)){
         date_competizione = date_competizione +
-        '\'' + competizione.date_pronostici[y].data_apertura + '\'' + ', ' +
-        '\'' + competizione.date_pronostici[y].data_chiusura + '\'' + ', ' +
-        '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '\'' + ' ';
+        '\'' + competizione.date_competizione[y].data_apertura + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_chiusura + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_calcolo_classifica + '\'' + ' ';
       } else {
         date_competizione = date_competizione +
-        '\'' + competizione.date_pronostici[y].data_apertura + '00:00:01' + '\'' + ', ' +
-        '\'' + competizione.date_pronostici[y].data_chiusura + '23:59:59' + '\'' + ', ' +
-        '\'' + competizione.date_pronostici[y].data_calcolo_classifica + '23:59:59' + '\'' + ' ';
+        '\'' + competizione.date_competizione[y].data_apertura + ' 00:00:01' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_chiusura + ' 23:59:59' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_calcolo_classifica + ' 23:59:59' + '\'' + ' ';
       }
-      date_competizione = date_competizione + ' )::pronolegagforum.date_competizione ';
+      date_competizione = date_competizione + ')::pronolegaforum.date_competizione ';
       if(y < (competizione.date_competizione.length - 1)){
         date_competizione = date_competizione + ', ';
       }else{
