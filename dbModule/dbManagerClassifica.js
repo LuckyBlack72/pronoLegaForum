@@ -379,7 +379,8 @@ function composeQueryTextAnagraficaCompetizione (competizione) {
       }
     }
     date_competizione = date_competizione + '] ';
-    queryText = queryText = queryText + date_competizione +  ' '; 
+    queryText = queryText + date_competizione +  ', '; 
+    queryText = queryText + 'logo = ' + '\'' + competizione.logo + '\'' + ' ';
     queryText = queryText + 'WHERE id = ' + competizione.id;
 
   }
