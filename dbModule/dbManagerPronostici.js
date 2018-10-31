@@ -85,6 +85,7 @@ function getPronostici(req) {
   'pr.stagione stagione, ' +
   'pr.id_competizione id_competizione, ' +
   'cmp.competizione competizione, ' +
+  'cmp.tipo_pronostici tipo_pronostici, ' +
   'pr.pronostici pronostici ' +
   'FROM ' +
   'pronolegaforum.pronostici pr ' +
