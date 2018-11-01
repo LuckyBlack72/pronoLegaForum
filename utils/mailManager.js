@@ -91,11 +91,46 @@ function notifyUpdateClassfica(stagione) {
 
 }
 
+function sendRecoverPasswordEmail(user, email) {
+
+    const mailServer = {
+                        host: 'smtps.aruba.it',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: 'sorteggio@legaforum.com',
+                            pass: 'provalf18'
+                        }
+    };
+
+    const transporter = nodeMailer.createTransport(mailServer);
+  
+    const mailOptions = {
+      from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+      to: email, // list of receivers
+      subject: user +  ' : ' + 'Recupero Password', // Subject line
+      text: user + ' ' + ' la password temporanea del tuo account è : 1234, modificala al più presto nel tuo profilo' , // plain text body
+      html: '<b>' + user + ' ' + ' la password temporanea del tuo account è : 1234, modificala al più presto nel tuo profilo' + '</b>', // html body
+      attachments: []
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+        }else{
+            console.log('Message %s sent: %s', info.messageId, info.response);
+        }
+    });
+
+}
+
+
 
 module.exports = {
 
     notifyInsertedProno,
-    notifyUpdateClassfica
+    notifyUpdateClassfica,
+    sendRecoverPasswordEmail
 
 };
   

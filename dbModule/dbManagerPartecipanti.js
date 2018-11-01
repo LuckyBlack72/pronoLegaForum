@@ -97,6 +97,32 @@ function checkAdminPassword(request) {
 
 }
 
+function checkEmail(request) {
+
+  var queryText = 'SELECT nickname, COUNT(*) FROM pronolegaforum.anagrafica_partecipanti WHERE ' +
+  'email_address = ' + '\'' + request.body.email + '\'' +
+  'GROUP BY nickname';
+
+  return db.one(queryText);
+
+}
+
+function resetPassword(nickname) {
+
+  var queryText = ' ';
+  var dummyPassword =  '1234';
+  
+  //costruisco la insert
+  queryText = 'UPDATE pronolegaforum.anagrafica_partecipanti ' +
+              'SET ' + 
+              'password_value = ' + 'MD5(' + '\'' + dummyPassword + '\'' + ') ' +
+              'WHERE nickname = ' + '\'' + nickname + '\'';
+
+  //eseguo update
+  return db.none(queryText);
+
+}
+
 
 module.exports = {
 
@@ -104,6 +130,8 @@ module.exports = {
     saveAnagraficaPartecipanti,
     updateAnagraficaPartecipanti,
     checkPassword,
-    checkAdminPassword
+    checkAdminPassword,
+    checkEmail,
+    resetPassword
 
 };

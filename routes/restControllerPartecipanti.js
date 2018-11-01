@@ -3,6 +3,7 @@ var router = express.Router();
 var dbManager = require('../dbModule/dbManager');
 var db = dbManager.getDb();
 var dbCall = require('../dbModule/dbManagerPartecipanti');
+var mailManager = require('../utils/mailManager');
 //var fs = require('fs');
 
 //indirizza le richieste a seconda di come cominciano
@@ -151,6 +152,27 @@ router.post('/checkAdminPassword', function(req, res, next) {
   dbCall.checkAdminPassword(req).then(function(data){ //torna una promise
     if(parseInt(data.count) > 0){
       res.status(200).json('OK');
+    }else{
+      res.status(500).json('KO');
+    }  
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json('KO '+ '[' + error + ']');
+  });  
+  
+});
+
+router.post('/recoverPassword', function(req, res, next) {
+
+  dbCall.checkEmail(req).then(function(data){ //torna una promise
+    if(parseInt(data.count) > 0){
+      dbCall.resetPassword(data.nickname).then(function(){
+        mailManager.sendRecoverPasswordEmail(data.nickname, req.body.email);
+        res.status(200).json('OK');
+      })
+      .catch(error => { //gestione errore
+        res.status(500).json('KO '+ '[' + error + ']');
+      });  
     }else{
       res.status(500).json('KO');
     }  
