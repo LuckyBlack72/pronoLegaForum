@@ -124,7 +124,7 @@ function getPronostici(req) {
       whereClause++;
     } 
   }
-  queryText = queryText + 'ORDER BY stagione, nickname, id_competizione';
+  queryText = queryText + 'ORDER BY stagione, nickname, tipo_pronostici, id_competizione';
 
   return db.any(queryText);
 
