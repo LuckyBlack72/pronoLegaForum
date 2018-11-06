@@ -404,20 +404,32 @@ function composeQueryValoriCompetizione (valoriPronostici, competizione, data) {
   for (var i = 0 ; i < valoriPronostici.length ; i++){
     valueProno = valoriPronostici[i].prono.replace("'","''");
     pronoData = pronoData + '"' + valueProno + '"'; 
-    if(i < (valoriPronostici.length - 1)){
+    if (i < (valoriPronostici.length - 1)) {
       pronoData = pronoData + ' , ';
-    }else{
+    } else {
       pronoData = pronoData + ' ';
     }
   }
   pronoData = pronoData + '}\'';
-  queryText = queryText + pronoData + ', ' + 
-  'NULL' + ' )';
+  
+  queryText = queryText + pronoData + ', ';
+  
+  pronoData = '\'{';
+  for (var x = 0; x < competizione.numero_pronostici; x++){
+    pronoData = pronoData + '"' + 'XXX' + '"'; 
+    if (x < (competizione.numero_pronostici - 1)) {
+      pronoData = pronoData + ' , ';
+    } else {
+      pronoData = pronoData + ' ';
+    }
+  }
+  pronoData = pronoData + '}\'';
+
+  queryText = queryText + pronoData + ' )';
 
   return queryText;
 
 }
-
 
 module.exports = { 
                     getAnagraficaCompetizioni,
