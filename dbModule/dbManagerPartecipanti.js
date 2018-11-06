@@ -107,10 +107,9 @@ function checkEmail(request) {
 
 }
 
-function resetPassword(nickname) {
+function resetPassword(nickname, dummyPassword) {
 
   var queryText = ' ';
-  var dummyPassword =  '1234';
   
   //costruisco la insert
   queryText = 'UPDATE pronolegaforum.anagrafica_partecipanti ' +

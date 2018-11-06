@@ -91,7 +91,7 @@ function notifyUpdateClassfica(stagione) {
 
 }
 
-function sendRecoverPasswordEmail(user, email) {
+function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
     const mailServer = {
                         host: 'smtps.aruba.it',
@@ -109,8 +109,8 @@ function sendRecoverPasswordEmail(user, email) {
       from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
       to: email, // list of receivers
       subject: user +  ' : ' + 'Recupero Password', // Subject line
-      text: user + ' ' + ' la password temporanea del tuo account è : 1234, modificala al più presto nel tuo profilo' , // plain text body
-      html: '<b>' + user + ' ' + ' la password temporanea del tuo account è : 1234, modificala al più presto nel tuo profilo' + '</b>', // html body
+      text: user + ' ' + ' la password temporanea del tuo account è : ' + dummyPassword + ' , modificala al più presto nel tuo profilo' , // plain text body
+      html: '<b>' + user + ' ' + ' la password temporanea del tuo account è : ' + dummyPassword + ' , modificala al più presto nel tuo profilo' + '</b>', // html body
       attachments: []
     };
 

@@ -4,6 +4,7 @@ var dbManager = require('../dbModule/dbManager');
 var db = dbManager.getDb();
 var dbCall = require('../dbModule/dbManagerPartecipanti');
 var mailManager = require('../utils/mailManager');
+var generator = require('generate-password');
 //var fs = require('fs');
 
 //indirizza le richieste a seconda di come cominciano
@@ -166,8 +167,12 @@ router.post('/recoverPassword', function(req, res, next) {
 
   dbCall.checkEmail(req).then(function(data){ //torna una promise
     if(parseInt(data.count) > 0){
-      dbCall.resetPassword(data.nickname).then(function(){
-        mailManager.sendRecoverPasswordEmail(data.nickname, req.body.email);
+      var dummyPassword = generator.generate({
+        length: 10,
+        numbers: true,
+      });
+      dbCall.resetPassword(data.nickname,dummyPassword).then(function(){
+        mailManager.sendRecoverPasswordEmail(data.nickname, req.body.email, dummyPassword);
         res.status(200).json('OK');
       })
       .catch(error => { //gestione errore
