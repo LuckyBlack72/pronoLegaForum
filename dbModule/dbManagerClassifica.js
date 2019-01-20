@@ -431,11 +431,22 @@ function composeQueryValoriCompetizione (valoriPronostici, competizione, data) {
 
 }
 
+function getStagioneCorrente () {
+
+  var queryText = 'SELECT ' +
+  'stagione_corrente ' +
+  'FROM pronolegaforum.stagione';
+  
+  return db.any(queryText);
+
+}
+
 module.exports = { 
                     getAnagraficaCompetizioni,
                     getStagioni,
                     saveClassificaCompetizioni,
                     getEmailAddressPartecipanti,
                     saveAnagraficaCompetizioni,
-                    getTipoCompetizione
+                    getTipoCompetizione,
+                    getStagioneCorrente
                   };
