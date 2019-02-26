@@ -441,6 +441,20 @@ function getStagioneCorrente () {
 
 }
 
+function updateStagioneCorrente() {
+
+  var queryText = ' ';
+  
+  //costruisco la insert
+  queryText = 'UPDATE pronolegaforum.stagione ' +
+              'SET ' + 
+              'stagione_corrente = stagione_corrente + 1';
+
+  //eseguo update
+  return db.none(queryText);
+
+}
+
 module.exports = { 
                     getAnagraficaCompetizioni,
                     getStagioni,
@@ -448,5 +462,6 @@ module.exports = {
                     getEmailAddressPartecipanti,
                     saveAnagraficaCompetizioni,
                     getTipoCompetizione,
-                    getStagioneCorrente
+                    getStagioneCorrente,
+                    updateStagioneCorrente
                   };

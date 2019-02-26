@@ -140,4 +140,15 @@ router.post('/getStagioneCorrente', function(req, res, next) {
 
 });
 
+router.post('/updateStagioneCorrente', function(req, res, next) {
+
+  dbCall.updateStagioneCorrente().then(function (data) { //torna una promise
+    res.status(200).json('OK');
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json('KO '+ '[' + error + ']');
+  });  
+
+});
+
 module.exports = router;
