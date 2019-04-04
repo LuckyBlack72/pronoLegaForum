@@ -15,6 +15,7 @@ var restControllerClassifica = require('./routes/restControllerClassifica'); //P
 var restControllerPartecipanti = require('./routes/restControllerPartecipanti'); //PostGres SQL
 var restControllerPronostici = require('./routes/restControllerPronostici'); //PostGres SQL
 var restControllerSincronizzazioneDati = require('./routes/restControllerSincronizzazioneDati'); //PostGres SQL
+var restControllerSchedine = require('./routes/restControllerSchedine'); //PostGres SQL
 
 var app = express();
 
@@ -51,6 +52,7 @@ app.use('/classifica', restControllerClassifica); //solo per le richieste ajax e
 app.use('/partecipanti', restControllerPartecipanti); //solo per le richieste ajax e PortGress Sql
 app.use('/pronostici', restControllerPronostici); //solo per le richieste ajax e PortGress Sql
 app.use('/sincronizzazionedati', restControllerSincronizzazioneDati); //solo per le richieste ajax e PortGress Sql
+app.use('/schedine', restControllerSchedine); //solo per le richieste ajax e PortGress Sql
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

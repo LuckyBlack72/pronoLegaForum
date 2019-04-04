@@ -48,7 +48,9 @@ function notifyUpdateClassfica(stagione) {
         
         let recipients = [];
         for( let i = 0; i < emailAddress.length; i++){
-            recipients.push(emailAddress[i].email_address);
+            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address)){
+                recipients.push(emailAddress[i].email_address);
+            }
         }
 
         const mailServer = {
@@ -124,7 +126,9 @@ function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
 }
 
-
+function stringIsNullOrWhiteSpace(str) {
+    return (!str || str.length === 0 || /^\s*$/.test(str));
+}
 
 module.exports = {
 
