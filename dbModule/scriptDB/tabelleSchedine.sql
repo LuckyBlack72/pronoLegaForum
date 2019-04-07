@@ -1,3 +1,24 @@
+/* ---------------------------------------------------------------------- */
+
+-- SEQUENCE: pronolegaforum.anagrafica_competizioni_settimanali_id_seq
+
+-- DROP SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq;
+
+CREATE SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq;
+
+ALTER SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq
+    OWNER TO postgres;
+
+/* ---------------------------------------------------------------------- */
+
+-- SEQUENCE: pronolegaforum.pronostici_settimanali_id_seq
+
+-- DROP SEQUENCE pronolegaforum.pronostici_settimanali_id_seq;
+
+CREATE SEQUENCE pronolegaforum.pronostici_settimanali_id_seq;
+
+ALTER SEQUENCE pronolegaforum.pronostici_settimanali_id_seq
+    OWNER TO postgres;
 -- Table: pronolegaforum.anagrafica_competizioni_settimanali
 
 -- DROP TABLE pronolegaforum.anagrafica_competizioni_settimanali;
@@ -50,24 +71,3 @@ TABLESPACE pg_default;
 ALTER TABLE pronolegaforum.pronostici_settimanali
     OWNER to postgres;
 
-/* ---------------------------------------------------------------------- */
-
--- SEQUENCE: pronolegaforum.anagrafica_competizioni_settimanali_id_seq
-
--- DROP SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq;
-
-CREATE SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq;
-
-ALTER SEQUENCE pronolegaforum.anagrafica_competizioni_settimanali_id_seq
-    OWNER TO postgres;
-
-/* ---------------------------------------------------------------------- */
-
--- SEQUENCE: pronolegaforum.pronostici_settimanali_id_seq
-
--- DROP SEQUENCE pronolegaforum.pronostici_settimanali_id_seq;
-
-CREATE SEQUENCE pronolegaforum.pronostici_settimanali_id_seq;
-
-ALTER SEQUENCE pronolegaforum.pronostici_settimanali_id_seq
-    OWNER TO postgres;

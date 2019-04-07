@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var dbCall = require('../dbModule/dbManagerschedineSettimanali');
+var dbCall = require('../dbModule/dbManagerSchedineSettimanali');
 var mailManager = require('../utils/mailManager');
 
 router.post('/getAnagraficaSchedine', function(req, res, next) {
