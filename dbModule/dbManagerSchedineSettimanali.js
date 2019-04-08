@@ -137,27 +137,24 @@ function savePronosticiSettimanali(req) {
 
     var queryText = 'DELETE FROM pronolegaforum.pronostici_settimanali ' +
     'WHERE ' + 'id_partecipanti = ' + id_partecipanti + ' AND ' + 
-    'stagione = ' + pronoToSave[0].stagione + ' AND settimana = ' + pronoToSave[0].settimana;
-
-    console.log(queryText);
+    'stagione = ' + pronoToSave.stagione + ' AND settimana = ' + pronoToSave.settimana;
 
     db.none(queryText).then(function () {
       var updates = [];
-      for (var x = 0 ; x < pronoToSave.length ; x++){
         //costruisco la insert
         queryText = '';
-        if ( pronoToSave[x].idPartecipanti == id_partecipanti ){
+        if ( pronoToSave.id_partecipanti == id_partecipanti ){
 
           queryText = 'INSERT INTO pronolegaforum.pronostici_settimanali ' +
           '( id_partecipanti, stagione, settimana, pronostici, valori_pronostici ) ' +
-          'VALUES ( ' + pronoToSave[x].idPartecipanti + ', ' + 
-          pronoToSave[x].stagione + ', ' + 
-          pronoToSave[x].settimana + ', ';
+          'VALUES ( ' + pronoToSave.id_partecipanti + ', ' + 
+          pronoToSave.stagione + ', ' + 
+          pronoToSave.settimana + ', ';
           var pronoData = '\'{';
-          for (var i = 0 ; i < pronoToSave[x].pronostici.length ; i++){
-            valueProno = pronoToSave[x].pronostici[i].replace("'","''");
+          for (var i = 0 ; i < pronoToSave.pronostici.length ; i++){
+            valueProno = pronoToSave.pronostici[i].replace("'","''");
             pronoData = pronoData + '"' + valueProno + '"'; 
-            if(i < (pronoToSave[x].pronostici.length - 1)){
+            if(i < (pronoToSave.pronostici.length - 1)){
               pronoData = pronoData + ' , ';
             }else{
               pronoData = pronoData + ' ';
@@ -166,10 +163,10 @@ function savePronosticiSettimanali(req) {
           pronoData = pronoData + '}\'' + ', ';
           queryText = queryText + pronoData;
           var valoriPronoData = '\'{';
-          for (var y = 0 ; y < pronoToSave[x].valori_pronostici.length ; y++){
-            valueProno = pronoToSave[x].valori_pronostici[y].replace("'","''");
+          for (var y = 0 ; y < pronoToSave.valori_pronostici.length ; y++){
+            valueProno = pronoToSave.valori_pronostici[y].replace("'","''");
             valoriPronoData = valoriPronoData + '"' + valueProno + '"'; 
-            if(y < (pronoToSave[x].valori_pronostici.length - 1)){
+            if(y < (pronoToSave.valori_pronostici.length - 1)){
               valoriPronoData = valoriPronoData + ' , ';
             }else{
               valoriPronoData = valoriPronoData + ' ';
@@ -179,11 +176,9 @@ function savePronosticiSettimanali(req) {
           queryText = queryText + valoriPronoData;
           queryText = queryText + ' )';
 
-          console.log(queryText);
-
           updates.push(db.none(queryText));
         }
-      }       
+
       return t.batch(updates);
     });
   });
@@ -264,7 +259,8 @@ function savePronosticiSettimanali(req) {
       'SET valori_pronostici_classifica = ';
       pronoData = '\'{ ';
       for (var x = 0 ; x < competizione.valori_pronostici_classifica.length ; x++){
-        valueProno = '\'' +  competizione.valori_pronostici_classifica[x] + '\'';
+        valueProno = competizione.valori_pronostici_classifica[x].replace("'","''");
+        valueProno = '"' +  competizione.valori_pronostici_classifica[x] + '"';
         pronoData = pronoData + valueProno; 
         if(x < (competizione.valori_pronostici_classifica.length - 1)){
           pronoData = pronoData + ' , ';
