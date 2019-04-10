@@ -123,6 +123,103 @@ function getPronosticiSettimanali(req) {
 
 }
 
+function getPronosticiSettimanaliPerClassifica(req) {
+
+  var stagione = 0;
+  if(req.body.stagione){
+    stagione = req.body.stagione;
+  }
+  
+  var idPartecipanti = 0;
+  if(req.body.idPartecipanti){
+    idPartecipanti = req.body.idPartecipanti;
+  }
+
+  var settimana = 0;
+  if(req.body.settimana){
+    idCompetizione = req.body.settimana;
+  }
+
+  var nickname = 'X';
+  if(req.body.nickname){
+    nickname = req.body.nickname;
+  }
+
+  var queryText = ' ';
+  var whereClause  = 0;
+
+/*  
+  queryText = 'SELECT ' +
+  'pr.id id, ' +
+  'pr.id_partecipanti id_partecipanti, ' +
+  'prc.nickname nickname, ' +
+  'pr.stagione stagione, ' +
+  'pr.settimana settimana, ' +
+  'pr.pronostici pronostici, ' +
+  'pr.valori_pronostici valori_pronostici, ' +
+  'acs.valori_pronostici_classifica valori_pronostici_classifica, ' +
+  'acs.punti_esatti punti_esatti ' +
+  'FROM ' +
+  'pronolegaforum.pronostici_settimanali pr ' +
+  'INNER JOIN pronolegaforum.anagrafica_partecipanti prc ON pr.id_partecipanti = prc.id ' +
+  'RIGHT JOIN pronolegaforum.anagrafica_competizioni_settimanali acs ON ( ' +
+  'pr.stagione = acs.stagione AND pr.settimana = acs.settimana ) ';
+*/
+
+  queryText = 'SELECT ' +
+  'acs.id id, ' +
+  'pr.id_partecipanti id_partecipanti, ' +
+  'prc.nickname nickname, ' +
+  'acs.stagione stagione, ' +
+  'acs.settimana settimana, ' +
+  'acs.pronostici pronostici, ' +
+  'pr.valori_pronostici valori_pronostici, ' +
+  'acs.valori_pronostici_classifica valori_pronostici_classifica, ' +
+  'acs.punti_esatti punti_esatti ' +
+  'FROM ' +
+  'pronolegaforum.anagrafica_competizioni_settimanali acs ' +
+  'LEFT OUTER JOIN pronolegaforum.pronostici_settimanali pr ' +
+  'ON ( pr.stagione = acs.stagione AND pr.settimana = acs.settimana ) ' +
+  'LEFT OUTER JOIN pronolegaforum.anagrafica_partecipanti prc ' +
+  'ON pr.id_partecipanti = prc.id ';
+
+  if(stagione !== 0 || idPartecipanti !== 0 || settimana !== 0 || nickname !== 'X'){
+    queryText = queryText + 'WHERE ';
+    if(stagione !== 0){
+      queryText = queryText + 'pr.stagione = ' + stagione + ' ';
+      //queryText = queryText + 'acs.stagione = ' + stagione + ' ';
+      whereClause++;
+    } 
+    if(idPartecipanti !== 0){
+      if(whereClause > 0 ){
+        queryText = queryText + 'AND ';  
+      }
+      queryText = queryText + 'pr.id_partecipanti = ' + idPartecipanti + ' ';
+      whereClause++;
+    } 
+    if(nickname !== 'X'){
+      if(whereClause > 0 ){
+        queryText = queryText + 'AND ';  
+      }
+     queryText = queryText + 'prc.nickname = ' + '\'' + nickname + '\'' + ' ) ';
+      whereClause++;
+    } 
+    if(settimana !== 0){
+      if(whereClause > 0 ){
+        queryText = queryText + 'AND ';  
+      }
+      queryText = queryText + 'acs.settimana = ' + settimana + ' ';
+      whereClause++;
+    } 
+  }
+  queryText = queryText + 'ORDER BY stagione, settimana, nickname';
+
+  console.log(queryText);
+
+  return db.any(queryText);
+
+}
+
 /* POST savePronostici. */
 /* salva i pronostici di un partecipante sul DB */
 
@@ -185,7 +282,18 @@ function savePronosticiSettimanali(req) {
 
 }
 
-  function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl) {
+function getStagioni () {
+
+  var queryText = 'SELECT ' +
+  'DISTINCT stagione ' +
+  'FROM pronolegaforum.anagrafica_competizioni_settimanali ' +  
+  'ORDER BY stagione';
+
+  return db.any(queryText);
+
+}
+
+function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl) {
 
     var queryText = ' ';
     var pronoData = ' ';
@@ -282,5 +390,7 @@ function savePronosticiSettimanali(req) {
     saveAnagraficaSchedine,
     getNewSettimanaSchedina,
     getPronosticiSettimanali,
-    savePronosticiSettimanali
+    savePronosticiSettimanali,
+    getStagioni,
+    getPronosticiSettimanaliPerClassifica
   };

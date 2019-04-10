@@ -47,6 +47,18 @@ router.post('/getPronosticiSettimanali', function(req, res, next) {
 
 });
 
+
+router.post('/getPronosticiSettimanaliPerClassifica', function(req, res, next) {
+
+  dbCall.getPronosticiSettimanaliPerClassifica(req).then(function (data) { //torna una promise
+      res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+      res.status(500).json([]);
+  });  
+
+});
+
 /* post savePronostici */
 /* salva i pronostici di un utente*/
 router.post('/savePronosticiSettimanali', function(req, res, next) {
@@ -60,5 +72,17 @@ router.post('/savePronosticiSettimanali', function(req, res, next) {
     });
   
 });
+
+/* Lista delle stagioni delle schedine */
+router.post('/getStagioni', function(req, res, next) {
+
+    dbCall.getStagioni().then(function (data) { //torna una promise
+      res.status(200).json(data);
+    })
+    .catch(error => { //gestione errore
+      res.status(500).json([]);
+    });  
+  
+  });
 
 module.exports = router;
