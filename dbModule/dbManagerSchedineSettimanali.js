@@ -148,7 +148,7 @@ function getPronosticiSettimanaliPerClassifica(req) {
   var queryText = ' ';
   var whereClause  = 0;
 
-/*  
+  
   queryText = 'SELECT ' +
   'pr.id id, ' +
   'pr.id_partecipanti id_partecipanti, ' +
@@ -164,8 +164,8 @@ function getPronosticiSettimanaliPerClassifica(req) {
   'INNER JOIN pronolegaforum.anagrafica_partecipanti prc ON pr.id_partecipanti = prc.id ' +
   'RIGHT JOIN pronolegaforum.anagrafica_competizioni_settimanali acs ON ( ' +
   'pr.stagione = acs.stagione AND pr.settimana = acs.settimana ) ';
-*/
 
+/*
   queryText = 'SELECT ' +
   'acs.id id, ' +
   'pr.id_partecipanti id_partecipanti, ' +
@@ -182,6 +182,7 @@ function getPronosticiSettimanaliPerClassifica(req) {
   'ON ( pr.stagione = acs.stagione AND pr.settimana = acs.settimana ) ' +
   'LEFT OUTER JOIN pronolegaforum.anagrafica_partecipanti prc ' +
   'ON pr.id_partecipanti = prc.id ';
+*/  
 
   if(stagione !== 0 || idPartecipanti !== 0 || settimana !== 0 || nickname !== 'X'){
     queryText = queryText + 'WHERE ';
@@ -212,7 +213,7 @@ function getPronosticiSettimanaliPerClassifica(req) {
       whereClause++;
     } 
   }
-  queryText = queryText + 'ORDER BY stagione, settimana, nickname';
+  queryText = queryText + 'ORDER BY nickname, stagione, settimana';
 
   console.log(queryText);
 
@@ -291,6 +292,23 @@ function getStagioni () {
 
   return db.any(queryText);
 
+}
+
+function getUtentiConPronosticiSettimanali(request) {
+    
+  var stagione = request.body.stagione;
+
+  var queryText = 'SELECT DISTINCT prc.nickname nickname ' +
+  'FROM pronolegaforum.anagrafica_partecipanti prc ' +
+  'INNER JOIN pronolegaforum.pronostici_settimanali ps ' +
+  'ON prc.id = ps.id_partecipanti ' +
+  'WHERE ps.stagione = ' + stagione + ' ' +
+  'ORDER BY nickname';
+
+  console.log(queryText);
+
+  return db.any(queryText);
+  
 }
 
 function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl) {
@@ -392,5 +410,6 @@ function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl) {
     getPronosticiSettimanali,
     savePronosticiSettimanali,
     getStagioni,
-    getPronosticiSettimanaliPerClassifica
+    getPronosticiSettimanaliPerClassifica,
+    getUtentiConPronosticiSettimanali
   };

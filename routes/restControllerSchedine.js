@@ -85,4 +85,15 @@ router.post('/getStagioni', function(req, res, next) {
   
   });
 
+  router.post('/getUtentiConPronosticiSettimanali', function(req, res, next) {
+
+    dbCall.getUtentiConPronosticiSettimanali(req).then(function (data) { //torna una promise
+      res.status(200).json(data);
+    })
+    .catch(error => { //gestione errore
+      res.status(500).json([]);
+    });  
+  
+  });
+
 module.exports = router;
