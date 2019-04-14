@@ -76,7 +76,7 @@ router.post('/savePronosticiSettimanali', function(req, res, next) {
 /* Lista delle stagioni delle schedine */
 router.post('/getStagioni', function(req, res, next) {
 
-    dbCall.getStagioni().then(function (data) { //torna una promise
+    dbCall.getStagioni(req.body.tipo_pronostici).then(function (data) { //torna una promise
       res.status(200).json(data);
     })
     .catch(error => { //gestione errore
