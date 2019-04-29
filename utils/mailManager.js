@@ -48,7 +48,7 @@ function notifyUpdateClassfica(stagione) {
         
         let recipients = [];
         for( let i = 0; i < emailAddress.length; i++){
-            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address)){
+            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
                 recipients.push(emailAddress[i].email_address);
             }
         }
