@@ -1,5 +1,6 @@
 var nodeMailer = require('nodemailer');
 var dbCallClassifica = require('../dbModule/dbManagerClassifica');
+var dbCallSchedine = require('../dbModule/dbManagerSchedineSettimanali');
 
 function notifyInsertedProno(user) {
 
@@ -126,6 +127,66 @@ function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
 }
 
+function notifyNewSchedina(schedina) {
+
+    dbCallSchedine.getEmailAddressPartecipanti().then(function(emailAddress){ //torna una promise
+        
+        const oggi = new Date();
+        const dateString = 
+        (oggi.getDate() > 9 ? oggi.getDate() : '0' + oggi.getDate()) +
+        '/' + 
+        ((oggi.getMonth() + 1) > 9 ? (oggi.getMonth() + 1) : '0' + (oggi.getMonth() + 1)) +
+        '/' + 
+        oggi.getFullYear();
+        
+        let recipients = [];
+        for( let i = 0; i < emailAddress.length; i++){
+            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
+                recipients.push(emailAddress[i].email_address);
+            }
+        }
+
+        const mailServer = {
+            host: 'smtps.aruba.it',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'sorteggio@legaforum.com',
+                pass: 'provalf18'
+            }
+        };
+
+        const transporter = nodeMailer.createTransport(mailServer);
+
+        const mailOptions = {
+        from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+        bcc: recipients, // list of receivers in bcc
+        subject: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana, // Subject line
+        text: 'Notifica apertura nuova Schedina Settimanale Numero' + schedina.settimana, // plain text body
+        html: '<b>' + 'Notifica apertura nuova Schedina Settimanale Numero' + schedina.settimana + '</b>', // html body
+        attachments: []
+        };        
+
+        transporter.sendMail(mailOptions, (error, info) => {
+
+            if (error) {
+                console.log(error);
+            }else{
+                console.log('Message %s sent: %s', info.messageId, info.response);
+            }
+        
+        });        
+      
+    })
+    .catch(error => { //gestione errore
+    
+        console.log(error);
+    
+    });
+
+}
+
+
 function stringIsNullOrWhiteSpace(str) {
     return (!str || str.length === 0 || /^\s*$/.test(str));
 }
@@ -134,7 +195,8 @@ module.exports = {
 
     notifyInsertedProno,
     notifyUpdateClassfica,
-    sendRecoverPasswordEmail
+    sendRecoverPasswordEmail,
+    notifyNewSchedina
 
 };
   

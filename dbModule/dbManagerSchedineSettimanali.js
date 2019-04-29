@@ -452,6 +452,19 @@ function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl, tipo_pronos
     return queryText;
   
   }
+
+  function getEmailAddressPartecipanti () {
+
+    var queryText = 'SELECT ' +
+    'DISTINCT p.email_address ' +
+    'FROM ' +
+    'pronolegaforum.anagrafica_partecipanti ' +
+    'WHERE ' +
+    'p.email_address IS NOT NULL ';
+  
+    return db.any(queryText);
+  
+  }
   
   module.exports = { 
     getAnagraficaSchedine,
@@ -461,5 +474,6 @@ function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl, tipo_pronos
     savePronosticiSettimanali,
     getStagioni,
     getPronosticiSettimanaliPerClassifica,
-    getUtentiConPronosticiSettimanali
+    getUtentiConPronosticiSettimanali,
+    getEmailAddressPartecipanti
   };

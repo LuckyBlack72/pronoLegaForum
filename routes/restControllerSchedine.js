@@ -17,6 +17,9 @@ router.post('/getAnagraficaSchedine', function(req, res, next) {
 router.post('/saveAnagraficaSchedine', function(req, res, next) {
 
     dbCall.saveAnagraficaSchedine(req).then(function (data) { //torna una promise
+        if (req.body.tipo_ddl === 'I') {
+          mailManager.notifyNewSchedina(req.body.anagraficaSchedine);
+        }
         res.status(200).json(data);
     })
     .catch(error => { //gestione errore
