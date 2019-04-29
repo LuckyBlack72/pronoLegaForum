@@ -460,7 +460,7 @@ function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl, tipo_pronos
     'FROM ' +
     'pronolegaforum.anagrafica_partecipanti ' +
     'WHERE ' +
-    'p.email_address IS NOT NULL ';
+    'email_address IS NOT NULL ';
   
     return db.any(queryText);
   
