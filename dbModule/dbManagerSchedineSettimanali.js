@@ -456,7 +456,7 @@ function composeQueryTextAnagraficaSchedine (competizione, tipo_ddl, tipo_pronos
   function getEmailAddressPartecipanti () {
 
     var queryText = 'SELECT ' +
-    'DISTINCT p.email_address ' +
+    'DISTINCT email_address ' +
     'FROM ' +
     'pronolegaforum.anagrafica_partecipanti ' +
     'WHERE ' +
