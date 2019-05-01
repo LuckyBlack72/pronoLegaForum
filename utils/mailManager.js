@@ -35,6 +35,7 @@ function notifyInsertedProno(user) {
 
 }
 
+/*
 function notifyUpdateClassfica(stagione) {
 
     dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
@@ -93,6 +94,67 @@ function notifyUpdateClassfica(stagione) {
     });
 
 }
+*/
+
+function notifyUpdateClassfica(stagione) {
+
+    dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
+        
+        const oggi = new Date();
+        const dateString = 
+        (oggi.getDate() > 9 ? oggi.getDate() : '0' + oggi.getDate()) +
+        '/' + 
+        ((oggi.getMonth() + 1) > 9 ? (oggi.getMonth() + 1) : '0' + (oggi.getMonth() + 1)) +
+        '/' + 
+        oggi.getFullYear();
+        
+        const mailServer = {
+            host: 'smtps.aruba.it',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'sorteggio@legaforum.com',
+                pass: 'provalf18'
+            }
+        };
+
+        const transporter = nodeMailer.createTransport(mailServer);        
+
+        for( let i = 0; i < emailAddress.length; i++){
+            
+            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
+
+                let mailOptions = {                
+                    from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                    to: emailAddress[i].email_address, // receiver in to
+                    subject: 'Notifica Aggiornamento Classifica al ' + dateString, // Subject line
+                    text: 'La classfica generale è stata aggiornata al ' + dateString, // plain text body
+                    html: '<b>' + 'La classfica generale è stata aggiornata al ' + dateString + '</b>', // html body
+                    attachments: []
+                };        
+                
+                transporter.sendMail(mailOptions, (error, info) => {
+
+                    if (error) {
+                        console.log(error);
+                    }else{
+                        console.log('Message %s sent: %s', info.messageId, info.response);
+                    }
+            
+                });                     
+            
+            }
+        }
+
+    })
+    .catch(error => { //gestione errore
+    
+        console.log(error);
+    
+    });
+
+}
+
 
 function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
@@ -127,6 +189,7 @@ function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
 }
 
+/*
 function notifyNewSchedina(schedina) {
 
     dbCallSchedine.getEmailAddressPartecipanti().then(function(emailAddress){ //torna una promise
@@ -185,7 +248,57 @@ function notifyNewSchedina(schedina) {
     });
 
 }
+*/
 
+function notifyNewSchedina(schedina) {
+
+    dbCallSchedine.getEmailAddressPartecipanti().then(function(emailAddress){ //torna una promise
+        
+        const mailServer = {
+            host: 'smtps.aruba.it',
+            port: 465,
+            secure: true,
+            auth: {
+                user: 'sorteggio@legaforum.com',
+                pass: 'provalf18'
+            }
+        };
+
+        const transporter = nodeMailer.createTransport(mailServer);
+      
+    
+        for( let i = 0; i < emailAddress.length; i++){
+
+            if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
+                let mailOptions = {
+                    from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                    to: emailAddress[i].email_address, // list of receivers in bcc
+                    subject: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana, // Subject line
+                    text: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana, // plain text body
+                    html: '<b>' + 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana + '</b>', // html body
+                    attachments: []
+                };                  
+                transporter.sendMail(mailOptions, ( error, info ) => {
+
+                    if (error) {
+                        console.log(error);
+                    }else{
+                        console.log('Message %s sent: %s', info.messageId, info.response);
+                    }
+                
+                });        
+        
+            }
+        }
+
+    })
+    .catch(error => { //gestione errore
+    
+        console.log(error);
+    
+    });
+
+}
 
 function stringIsNullOrWhiteSpace(str) {
     return (!str || str.length === 0 || /^\s*$/.test(str));
