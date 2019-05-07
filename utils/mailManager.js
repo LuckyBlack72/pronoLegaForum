@@ -128,11 +128,19 @@ function notifyUpdateClassfica(stagione) {
             if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
 
                 mails.push({                
-                    from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                    from: 'sorteggio@legaforum.com', // sender address
                     to: emailAddress[i].email_address, // receiver in to
+                    envelope: {
+                        from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                        to: emailAddress[i].email_address, // receiver in to                        
+                    },
                     subject: 'Notifica Aggiornamento Classifica al ' + dateString, // Subject line
-                    text: 'La classfica generale è stata aggiornata al ' + dateString, // plain text body
-                    html: '<b>' + 'La classfica generale è stata aggiornata al ' + dateString + '</b>', // html body
+                    text: 'La classfica generale è stata aggiornata al ' + dateString +
+                        ' controlla la tua posizione : https://pronostici-lega-forum.herokuapp.com ',  // plain text body
+                    html: '<b>' + 'La classfica generale è stata aggiornata al ' + dateString + '</b>' + 
+                        '<br>' + 
+                        'controlla la tua posizione : ' +
+                        '<a href="https://pronostici-lega-forum.herokuapp.com">https://pronostici-lega-forum.herokuapp.com</a> ', // html body
                     attachments: []
                 });
             }
@@ -143,9 +151,9 @@ function notifyUpdateClassfica(stagione) {
             transporter.sendMail(mails[x], (error, info) => {
 
                 if (error) {
-                    console.log(error);
+                    console.log(mails[x].to + ' - ' + error);
                 }else{
-                    console.log('Message %s sent: %s', info.messageId, info.response);
+                    console.log(mails[x].to + ' - ' + 'Message %s sent: %s', info.messageId, info.response);
                 }
             
             });                 
@@ -280,11 +288,19 @@ function notifyNewSchedina(schedina) {
             if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
 
                 mails.push({                
-                    from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
-                    to: emailAddress[i].email_address, // list of receivers in bcc
+                    from: 'sorteggio@legaforum.com', // sender address
+                    to: emailAddress[i].email_address, // receiver in to
+                    envelope: {
+                        from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                        to: emailAddress[i].email_address, // receiver in to                        
+                    },
                     subject: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana, // Subject line
-                    text: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana, // plain text body
-                    html: '<b>' + 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana + '</b>', // html body
+                    text: 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana + ' ' + 
+                    'fai i tuoi pronostici su : ' + 'https://pronostici-lega-forum.herokuapp.com', // plain text body
+                    html: '<b>' + 'Notifica apertura nuova Schedina Settimanale Numero ' + schedina.settimana + '</b>' + 
+                    '<br>' + 
+                    'fai i tuoi pronostici su : ' +
+                    '<a href="https://pronostici-lega-forum.herokuapp.com">https://pronostici-lega-forum.herokuapp.com</a> ', // html body                    , // html body
                     attachments: []
                 });
         
