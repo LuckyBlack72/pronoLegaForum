@@ -138,23 +138,19 @@ function notifyUpdateClassfica(stagione) {
             }
         }
 
-        transporter.on("idle", function() {
-            // send next message from the pending queue
-            while (transporter.isIdle() && mails.length) {
+        for (let x = 0; x < mails.length; x++){
 
-                transporter.sendMail(mails.shift(), (error, info) => {
+            transporter.sendMail(mails[x], (error, info) => {
 
-                    if (error) {
-                        console.log(error);
-                    }else{
-                        console.log('Message %s sent: %s', info.messageId, info.response);
-                    }
+                if (error) {
+                    console.log(error);
+                }else{
+                    console.log('Message %s sent: %s', info.messageId, info.response);
+                }
             
-                });                   
-            }
-        });
-
-        transporter.close();
+            });                 
+            
+        }
 
     })
     .catch(error => { //gestione errore
@@ -277,8 +273,8 @@ function notifyNewSchedina(schedina) {
         };
 
         const transporter = nodeMailer.createTransport(mailServer);
-        let mails = [];      
-    
+        let mails = [];     
+
         for( let i = 0; i < emailAddress.length; i++){
 
             if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
@@ -296,23 +292,19 @@ function notifyNewSchedina(schedina) {
         
         }
 
-        transporter.on("idle", function() {
-            // send next message from the pending queue
-            while (transporter.isIdle() && mails.length) {
+        for (let x = 0; x < mails.length; x++){
 
-                transporter.sendMail(mails.shift(), (error, info) => {
+            transporter.sendMail(mails[x], (error, info) => {
 
-                    if (error) {
-                        console.log(error);
-                    }else{
-                        console.log('Message %s sent: %s', info.messageId, info.response);
-                    }
+                if (error) {
+                    console.log(error);
+                }else{
+                    console.log('Message %s sent: %s', info.messageId, info.response);
+                }
             
-                });                   
-            }
-        });
-
-        transporter.close();        
+            });                 
+            
+        }
 
     })
     .catch(error => { //gestione errore
