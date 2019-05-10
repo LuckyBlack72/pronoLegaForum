@@ -10,12 +10,61 @@ function getAnagraficaCompetizioni (req) {
   'punti_esatti, punti_lista, numero_pronostici, logo, ' + 
   'tipo_competizione, tipo_pronostici, date_competizione ' +
   'FROM pronolegaforum.anagrafica_competizioni ';
+
   if(req.body.stagione !=0){
     queryText += 'WHERE '  + req.body.stagione + ' = ANY (anni_competizione) ' + 
     'ORDER BY id';
   } else {
     queryText += 'ORDER BY competizione';
   }
+
+  return db.any(queryText);
+
+}
+
+function getAnagraficaCompetizioniExport (req) {
+
+  var whereCond = 0;
+
+  var queryText = 'SELECT ' +
+  'ac.id, ac.competizione, ac.nome_pronostico, ac.anni_competizione, ' +
+  'ac.punti_esatti, ac.punti_lista, ac.numero_pronostici, ac.logo, ' + 
+  'ac.tipo_competizione, ac.tipo_pronostici, ac.date_competizione, ' +
+  'vp.valori_pronostici ' + 
+  'FROM ' + 
+  'pronolegaforum.anagrafica_competizioni ac ' +
+  'INNER JOIN pronolegaforum.valori_pronostici vp ON ac.id = vp.id_competizione ';
+  
+  if(req.body.stagione !=0){
+    queryText += 'WHERE '  + req.body.stagione + ' = ANY (ac.anni_competizione) ';
+    whereCond = 1;
+  }
+  
+  if(req.body.tipo_pronostici != 'X'){
+    if(whereCond === 0){
+      queryText += 'WHERE ' + 'ac.tipo_pronostici = ' + '\'' + req.body.tipo_pronostici + '\'' + ' '; 
+      whereCond = 1;
+    } else {
+      queryText += 'AND ' + 'ac.tipo_pronostici = ' + '\'' + req.body.tipo_pronostici + '\'' + ' ';
+      whereCond = 2;
+    }
+  }
+
+  if (whereCond != 0) {
+
+    if (whereCond === 1 && req.body.tipo_pronostici != 'X'){
+      queryText += 'ORDER BY ac.id';
+    } else {
+      queryText += 'ORDER BY ac.competizione';
+    }
+  
+  } else {
+  
+    queryText += 'ORDER BY ac.competizione';
+  
+  }
+
+// console.log(queryText);
 
   return db.any(queryText);
 
@@ -457,6 +506,7 @@ function updateStagioneCorrente() {
 
 module.exports = { 
                     getAnagraficaCompetizioni,
+                    getAnagraficaCompetizioniExport,
                     getStagioni,
                     saveClassificaCompetizioni,
                     getEmailAddressPartecipanti,

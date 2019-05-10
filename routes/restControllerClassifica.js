@@ -80,6 +80,17 @@ router.post('/getAnagraficaCompetizioni', function(req, res, next) {
 
 });
 
+router.post('/getAnagraficaCompetizioniExport', function(req, res, next) {
+
+  dbCall.getAnagraficaCompetizioniExport(req).then(function (data) { //torna una promise
+    res.status(200).json(data);
+  })
+  .catch(error => { //gestione errore
+    res.status(500).json([]);
+  });  
+
+});
+
 router.post('/getStagioni', function(req, res, next) {
 
   dbCall.getStagioni().then(function (data) { //torna una promise
