@@ -36,7 +36,7 @@ function notifyInsertedProno(user) {
 
 }
 
-function notifyUserInsertedProno(request) {
+function notifyUserSchedineInsertedProno(request) {
 
     const mailServer = {
         host: 'smtps.aruba.it',
@@ -400,7 +400,7 @@ module.exports = {
     notifyUpdateClassfica,
     sendRecoverPasswordEmail,
     notifyNewSchedina,
-    notifyUserInsertedProno
-
+    notifyUserSchedineInsertedProno,
+    
 };
   
