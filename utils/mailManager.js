@@ -1,6 +1,7 @@
 var nodeMailer = require('nodemailer');
 var dbCallClassifica = require('../dbModule/dbManagerClassifica');
 var dbCallSchedine = require('../dbModule/dbManagerSchedineSettimanali');
+var dbCallPartecipanti = require('../dbModule/dbManagerPartecipanti');
 
 function notifyInsertedProno(user) {
 
@@ -32,6 +33,64 @@ function notifyInsertedProno(user) {
             console.log('Message %s sent: %s', info.messageId, info.response);
         }
     });
+
+}
+
+function notifyUserInsertedProno(request) {
+
+    const mailServer = {
+        host: 'smtps.aruba.it',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'sorteggio@legaforum.com',
+            pass: 'provalf18'
+        }
+    };
+
+    const transporter = nodeMailer.createTransport(mailServer);
+    
+    dbCallPartecipanti.getAnagraficaPartecipanti(request).then(function(userData){
+
+        let mailBody = '';
+        let mailBodyHtml = '';
+
+        if (request.body.tipo_pronostici === 'E') {
+            mailBody = 'Schedina N° ' + request.body.pronostici.settimana + ' - ' + 'Stagione : ' + request.body.pronostici.stagione + '\n\n';
+            mailBodyHtml = '<b>' + 'Schedina N° ' + request.body.pronostici.settimana + ' - ' + 'Stagione : ' + request.body.pronostici.stagione + '</b>' + '<br><br>';            
+        } else {
+            mailBody = 'Schedina Lega Forum N° ' + request.body.pronostici.settimana + ' - ' + 'Stagione : ' + request.body.pronostici.stagione + '\n\n';
+            mailBodyHtml = '<b>' + 'Schedina Lega Forum N° ' + request.body.pronostici.settimana + ' - ' + 'Stagione : ' + request.body.pronostici.stagione + '</b>' + '<br><br>';            
+        }
+
+        for (var i = 0; i < request.body.pronostici.pronostici.length; i++){
+            mailBody += (i+1) + ' - ' + request.body.pronostici.pronostici[i] + ' : ' + request.body.pronostici.valori_pronostici[i] + '\n';
+            mailBodyHtml += (i+1) + ' - ' + request.body.pronostici.pronostici[i] + ' : ' + request.body.pronostici.valori_pronostici[i] + '<br>';
+        }
+
+        const mailOptions = {
+            from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+            to: userData[0].email_address, // list of receivers
+            subject: 'Notifica Inserimento / Modifica Pronostici', // Subject line
+            text: mailBody, // plain text body
+            html: mailBodyHtml, // html body
+            attachments: []
+          };
+    
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+            }else{
+                console.log('Message %s sent: %s', info.messageId, info.response);
+            }
+        });
+    
+    })
+    .catch(error => { //gestione errore
+    
+        console.log(error);
+    
+    }); 
 
 }
 
@@ -340,7 +399,8 @@ module.exports = {
     notifyInsertedProno,
     notifyUpdateClassfica,
     sendRecoverPasswordEmail,
-    notifyNewSchedina
+    notifyNewSchedina,
+    notifyUserInsertedProno
 
 };
   

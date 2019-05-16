@@ -68,6 +68,7 @@ router.post('/savePronosticiSettimanali', function(req, res, next) {
 
     dbCall.savePronosticiSettimanali(req).then(function(data){ //torna una promise
       mailManager.notifyInsertedProno(req.body.nickname);
+      mailManager.notifyUserInsertedProno(req);
       res.status(200).json('OK');
     })
     .catch(error => { //gestione errore
