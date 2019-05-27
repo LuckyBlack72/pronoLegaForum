@@ -104,8 +104,14 @@ router.post('/getStagioni', function(req, res, next) {
 
 router.post('/saveClassificaCompetizioni', function(req, res, next) {
 
+  let dtClassifica = '';
+
   dbCall.saveClassificaCompetizioni(req).then(function(data){ //torna una promise
-    mailManager.notifyUpdateClassfica(req.body.classificaCompetizioni[0].stagione);
+
+    // metto la data di invio ritornata dalla funzione in una variabile 
+    // e setto la app.locals.dataClassifica con quella variabiile 
+    dtClassifica = mailManager.notifyUpdateClassfica(req.body.classificaCompetizioni[0].stagione, req.app.locals.dataClassifica);
+    req.app.locals.dataClassifica = dtClassifica;
     res.status(200).json('OK');
   })
   .catch(error => { //gestione errore

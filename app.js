@@ -22,6 +22,9 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+//setto la variabile per l'invio delle mail
+app.locals.dataClassifica = '0';
+
 app.use(cors()); //CORS handling
 
 app.use(helmet()); //security

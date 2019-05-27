@@ -155,6 +155,7 @@ function notifyUpdateClassfica(stagione) {
 }
 */
 
+/* senza data per non mandare più notifiche di aggiornamento nello stesso giorno 
 function notifyUpdateClassfica(stagione) {
 
     dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
@@ -227,7 +228,109 @@ function notifyUpdateClassfica(stagione) {
     });
 
 }
+*/
 
+function notifyUpdateClassfica(stagione, dataClassifica) {
+
+    let sendNotification = true; 
+    const checkData = new Date();
+    let dtReturn = checkData.getDate() + '/' + (checkData.getMonth() + 1) + '/' + checkData.getFullYear();
+
+    if ( dataClassifica == '0' ){
+
+        sendNotification = true;
+    
+    }  else {
+    
+        if (dataClassifica == dtReturn){
+
+            sendNotification = false;
+        
+        } else {
+      
+            dtReturn = checkData.getDate() + '/' + (checkData.getMonth() + 1) + '/' + checkData.getFullYear();
+            sendNotification = true;
+        
+        }
+    
+    }
+
+    if (sendNotification){
+
+        dbCallClassifica.getEmailAddressPartecipanti(stagione).then(function(emailAddress){ //torna una promise
+        
+            const oggi = new Date();
+            const dateString = 
+            (oggi.getDate() > 9 ? oggi.getDate() : '0' + oggi.getDate()) +
+            '/' + 
+            ((oggi.getMonth() + 1) > 9 ? (oggi.getMonth() + 1) : '0' + (oggi.getMonth() + 1)) +
+            '/' + 
+            oggi.getFullYear();
+            
+            const mailServer = {
+                pool: true, // pooled connections
+                maxConnections: 2,
+                host: 'smtps.aruba.it',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: 'sorteggio@legaforum.com',
+                    pass: 'provalf18'
+                }
+            };
+    
+            const transporter = nodeMailer.createTransport(mailServer);  
+            let mails = [];      
+    
+            for( let i = 0; i < emailAddress.length; i++){
+                
+                if (!stringIsNullOrWhiteSpace(emailAddress[i].email_address) && emailAddress[i].email_address !== 'abco@ciao.it'){
+    
+                    mails.push({                
+                        from: 'sorteggio@legaforum.com', // sender address
+                        to: emailAddress[i].email_address, // receiver in to
+                        envelope: {
+                            from: '"Pronostici Lega Forum" <' + 'sorteggio@legaforum.com' + ' >', // sender address
+                            to: emailAddress[i].email_address, // receiver in to                        
+                        },
+                        subject: 'Notifica Aggiornamento Classifica al ' + dateString, // Subject line
+                        text: 'La classfica generale è stata aggiornata al ' + dateString +
+                            ' controlla la tua posizione : https://pronostici-lega-forum.herokuapp.com ',  // plain text body
+                        html: '<b>' + 'La classfica generale è stata aggiornata al ' + dateString + '</b>' + 
+                            '<br>' + 
+                            'controlla la tua posizione : ' +
+                            '<a href="https://pronostici-lega-forum.herokuapp.com">https://pronostici-lega-forum.herokuapp.com</a> ', // html body
+                        attachments: []
+                    });
+                }
+            }
+    
+            for (let x = 0; x < mails.length; x++){
+    
+                transporter.sendMail(mails[x], (error, info) => {
+    
+                    if (error) {
+                        console.log(mails[x].to + ' - ' + error);
+                    }else{
+                        console.log(mails[x].to + ' - ' + 'Message %s sent: %s', info.messageId, info.response);
+                    }
+                
+                });                 
+                
+            }
+    
+        })
+        .catch(error => { //gestione errore
+        
+            console.log(error);
+        
+        });
+
+    }
+
+    return dtReturn;
+    
+}
 
 function sendRecoverPasswordEmail(user, email, dummyPassword) {
 
