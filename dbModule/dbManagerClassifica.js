@@ -82,6 +82,8 @@ function getIdCompetizione (request) {
   ' = ANY (anni_competizione) AND ' + 
   'competizione = ' + '\'' + competizione.competizione + '\'';
 
+  console.log(queryText);
+
   return db.any(queryText);
 
 }
@@ -294,9 +296,11 @@ ARRAY[
 
 function saveAnagraficaCompetizioni(request) {
 
-  var competizione = request.body.anagraficaCompetizioni;
+    var competizione = request.body.anagraficaCompetizioni;
   var valoriPronostici = request.body.valoriPronostici;
   var queryText = '';
+
+console.log(competizione);
 
   //gestione transazionale delle insert
   return db.tx(function (t) {
@@ -337,6 +341,8 @@ function getTipoCompetizione () {
 }
 
 function composeQueryTextAnagraficaCompetizione (competizione) {
+
+  // console.log(competizione);
 
   var queryText = ' ';
   var pronoData = ' ';
@@ -389,7 +395,7 @@ function composeQueryTextAnagraficaCompetizione (competizione) {
     queryText = queryText + ')';
 
   } else {
-
+    
     queryText = 'UPDATE pronolegaforum.anagrafica_competizioni ' +
     'SET anni_competizione = ';
     pronoData = '\'{ ';
@@ -402,23 +408,26 @@ function composeQueryTextAnagraficaCompetizione (competizione) {
         pronoData = pronoData + ' ';
       }
     }
+
+// console.log(queryText);    
+
     pronoData = pronoData + '}\'';
     queryText = queryText + pronoData + ', ';
     queryText = queryText + 'date_competizione = ';
     date_competizione = date_competizione + 'ARRAY [ ';
     for (let y = 0; y < competizione.date_competizione.length; y++){
       date_competizione = date_competizione + '( ' +
-      competizione.date_pronostici[y].stagione + ', ';
+      competizione.anni_competizione[y] + ', ';
       if(y < (competizione.date_competizione.length - 1)){
         date_competizione = date_competizione +
-        '\'' + competizione.date_competizione[y].data_apertura + '\'' + ', ' +
-        '\'' + competizione.date_competizione[y].data_chiusura + '\'' + ', ' +
-        '\'' + competizione.date_competizione[y].data_calcolo_classifica + '\'' + ' ';
+        '\'' + competizione.date_competizione[y].data_apertura.substring(0,10) + ' 00:00:01' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_chiusura.substring(0,10) + ' 23:59:59' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_calcolo_classifica.substring(0,10) + ' 23:59:59' + '\'' + ' ';
       } else {
         date_competizione = date_competizione +
-        '\'' + competizione.date_competizione[y].data_apertura + ' 00:00:01' + '\'' + ', ' +
-        '\'' + competizione.date_competizione[y].data_chiusura + ' 23:59:59' + '\'' + ', ' +
-        '\'' + competizione.date_competizione[y].data_calcolo_classifica + ' 23:59:59' + '\'' + ' ';
+        '\'' + competizione.date_competizione[y].data_apertura.substring(0,10) + ' 00:00:01' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_chiusura.substring(0,10) + ' 23:59:59' + '\'' + ', ' +
+        '\'' + competizione.date_competizione[y].data_calcolo_classifica.substring(0,10) + ' 23:59:59' + '\'' + ' ';
       }
       date_competizione = date_competizione + ')::pronolegaforum.date_competizione ';
       if(y < (competizione.date_competizione.length - 1)){
@@ -433,6 +442,8 @@ function composeQueryTextAnagraficaCompetizione (competizione) {
     queryText = queryText + 'WHERE id = ' + competizione.id;
 
   }
+
+  console.log(queryText);
 
   return queryText;
 
